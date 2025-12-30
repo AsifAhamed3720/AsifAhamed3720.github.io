@@ -11,8 +11,91 @@
 
   <h2>Projects</h2>
   <ul>
-    <li>Final Year Project – 3D Blood Vessel Reconstruction</li>
-    <li>Balance Buddy – Budget Management App</li>
+    <h3>From Normals to Mesh: High-Fidelity Vascular Surface Reconstruction</h3>
+    <p>
+         Undergraduate Final Year Dissertation | Computer Vision & 3D Geometry
+        
+        Designed and implemented a research-grade 3D reconstruction pipeline for generating accurate, watertight vascular meshes from medical CT segmentations. The project evaluated how surface normal estimation and orientation strategies influence reconstruction quality using Screened Poisson Surface Reconstruction.
+        
+        🔹 What makes this project exceptional
+        
+        Designed and compared 2 complete reconstruction pipelines under identical conditions
+        
+        Processed multiple full-resolution CT volumes with expert-validated segmentations
+        
+        Achieved sub-voxel surface accuracy, quantified using standard geometric error metrics
+        
+        🔹 Technical Highlights
+        
+        Converted segmented CT volumes into adaptive point clouds containing tens of thousands of points for thin vascular structures
+        
+        Implemented and compared:
+        
+        Principal Component Analysis (PCA) + Signed Distance Function (SDF) normal orientation
+        
+        Geodesic Principal Component Analysis (PCA) + Minimum Spanning Tree (MST) global orientation
+        
+        Integrated Screened Poisson Surface Reconstruction to produce watertight meshes
+        
+        Evaluated reconstruction quality using RMS error, Chamfer distance, and Hausdorff distance across multiple parameter settings
+        
+        Conducted quantitative comparisons across several reconstruction resolutions and normal neighborhood sizes
+        
+        🔹 Outcome (Quantitative Impact)
+        
+        Demonstrated consistent reductions in surface error when using globally oriented normals
+        
+        Identified optimal parameter ranges that improved mesh stability and accuracy
+        
+        Produced vascular meshes with measured accuracy below the voxel resolution of the input CT data</p>
+    <h3>Balance Buddy – Budget Management Android Application</h3>
+      <p>
+          Balance Buddy is a lightweight Android budget management application designed to help users track expenses, manage subscriptions, and gain meaningful financial insights. The app focuses on accessibility and performance, making it suitable for users in regions with limited access to modern banking integrations.
+          
+          The application is built using Kotlin and follows the MVVM (Model–View–ViewModel) architecture, ensuring a clean separation of concerns between UI, business logic, and data handling for better scalability and maintainability.
+          
+          Key Features
+          
+          Dashboard Overview: Central hub displaying expense summaries, budget status, recent transactions, and quick navigation
+          
+          Expense Tracking: Categorized expense logging with monthly filtering and swipe-to-delete functionality
+          
+          Subscription Management: Track recurring subscriptions with automated expiry reminder notifications
+          
+          Income Tracking: Record and manage monthly income entries
+          
+          Budgeting Insights: Spending recommendations and interactive 7-day expense visualizations
+          
+          Bill Split: Split shared expenses equally and add them directly to personal expense records
+          
+          Settings & Account Management: Notification controls, profile updates, secure logout, and full account/data deletion
+          
+          Technology & Architecture
+          
+          Programming Language: Kotlin
+          
+          Architecture: MVVM (Model–View–ViewModel)
+          
+          Platform: Android (API 30+)
+          
+          IDE: Android Studio
+          
+          Backend & Database: Firebase Authentication & Firestore
+          
+          Background Tasks: WorkManager for subscription reminder notifications
+          
+          Technical Highlights
+          
+          Clean MVVM-based project structure (model, view, viewmodel)
+          
+          Real-time data handling using Firebase Firestore
+          
+          Secure user authentication with Firebase Auth
+          
+          Gesture-based UI interactions and modern Android design patterns
+          
+          Optimized to run efficiently on both low-end and high-end Android devices
+      </p>
   </ul>
 
   <h2>Contact</h2>
