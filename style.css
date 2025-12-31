@@ -109,7 +109,7 @@ a:hover::after {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
@@ -282,17 +282,22 @@ a:hover::after {
 }
 
 .project-wrapper:hover .project-image.left {
-  transform: translate(-300%, -50%) scale(1);
-  opacity: 1;
-  filter: blur(0);
+  transform: translate(
+    calc(-50% - clamp(180px, 25vw, 320px)),
+    -50%
+  ) scale(1);
 }
 
 .project-wrapper:hover .project-image.right {
-  transform: translate(300%, -50%) scale(1);
-  opacity: 1;
-  filter: blur(0);
+  transform: translate(
+    calc(50% + clamp(180px, 25vw, 320px)),
+    -50%
+  ) scale(1);
 }
 
+.project-image {
+  outline: 2px solid red;
+}
 
 
 
