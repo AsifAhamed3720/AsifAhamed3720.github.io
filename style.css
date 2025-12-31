@@ -105,13 +105,20 @@ a:hover::after {
    PROJECT CARDS
 ========================= */
 .project-card {
-  background: linear-gradient(145deg, #121212, #0c0c0c);
-  border: 1px solid #1f1f1f;
+  background: rgba(20, 20, 20, 0.65); /* glass layer */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: relative;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 30px;
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 
   transition:
     transform 0.35s ease,
@@ -123,8 +130,30 @@ a:hover::after {
 
 .project-card:hover {
   transform: translateY(-10px) scale(1.01);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(77, 163, 255, 0.4);
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(77, 163, 255, 0.35);
+  border: 1px solid rgba(77, 163, 255, 0.35);
+}
+
+.project-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(
+    120deg,
+    rgba(77, 163, 255, 0.08),
+    rgba(143, 123, 255, 0.05),
+    rgba(77, 163, 255, 0.08)
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.project-card:hover::before {
+  opacity: 1;
 }
 
 /* =========================
