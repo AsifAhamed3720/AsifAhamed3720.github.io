@@ -2,108 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asif Ahamed Siddique | Portfolio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Asif Ahamed Siddique</h1>
-  <p>AI & ML Engineer | Applied AI and Machine Learning</p>
-  <p>Bsc(Hons) Computer Science with Artificial Intelligence </br>
-     Universty of Nottingham Malaysia</p>
 
-  <h2>My Projects</h2>
-  <ul>
-    <h3>From Normals to Mesh: High-Fidelity Vascular Surface Reconstruction</h3>
+  <!-- ===== HERO ===== -->
+  <section>
+    <h1>Asif Ahamed Siddique</h1>
     <p>
-         <h4>Undergraduate Final Year Dissertation | Computer Vision & 3D Geometry</h4>
-        
-        Designed and implemented a research-grade 3D reconstruction pipeline for generating accurate, watertight vascular meshes from medical CT segmentations. The project evaluated how surface normal estimation and orientation strategies influence reconstruction quality using Screened Poisson Surface Reconstruction.
-        
-         <h5>🔹 What makes this project exceptional</h5>
-        
-        <ul>Designed and compared 2 complete reconstruction pipelines under identical conditions</ul>
-        
-        <ul>Processed multiple full-resolution CT volumes with expert-validated segmentations</ul>
-        
-        <ul>Achieved sub-voxel surface accuracy, quantified using standard geometric error metrics</ul>
-        
-        <h5>🔹 Technical Highlights</h5>
-        
-        <ul>Converted segmented CT volumes into adaptive point clouds containing tens of thousands of points for thin vascular structures</ul>
-        
-            Implemented and compared:
-        
-        <ul>Principal Component Analysis (PCA) + Signed Distance Function (SDF) normal orientation</ul>
-        
-        <ul>Geodesic Principal Component Analysis (PCA) + Minimum Spanning Tree (MST) global orientation</ul>
-        
-        <ul>Integrated Screened Poisson Surface Reconstruction to produce watertight meshes</ul>
-        
-        <ul>Evaluated reconstruction quality using RMS error, Chamfer distance, and Hausdorff distance across multiple parameter settings</ul>
-        
-        <ul>Conducted quantitative comparisons across several reconstruction resolutions and normal neighborhood sizes</ul>
-        
-        <h5>🔹 Outcome (Quantitative Impact) </h5>
-        
-        <ul>Demonstrated consistent reductions in surface error when using globally oriented normals</ul>
-        
-        <ul>Identified optimal parameter ranges that improved mesh stability and accuracy</ul>
-        
-        <ul>Produced vascular meshes with measured accuracy below the voxel resolution of the input CT data</ul></p>
-    <h3>Balance Buddy – Budget Management Android Application</h3>
-      <p>
-          Balance Buddy is a lightweight Android budget management application designed to help users track expenses, manage subscriptions, and gain meaningful financial insights. The app focuses on accessibility and performance, making it suitable for users in regions with limited access to modern banking integrations.
-          
-          The application is built using Kotlin and follows the MVVM (Model–View–ViewModel) architecture, ensuring a clean separation of concerns between UI, business logic, and data handling for better scalability and maintainability.
-          
-          <h5>🔹Key Features</h5>
-          
-          <ul>Dashboard Overview: Central hub displaying expense summaries, budget status, recent transactions, and quick navigation</ul>
-          
-          <ul>Expense Tracking: Categorized expense logging with monthly filtering and swipe-to-delete functionality</ul>
-          
-          <ul>Subscription Management: Track recurring subscriptions with automated expiry reminder notifications</ul>
-          
-          <ul>Income Tracking: Record and manage monthly income entries</ul>
-          
-          <ul>Budgeting Insights: Spending recommendations and interactive 7-day expense visualizations</ul>
-          
-          <ul>Bill Split: Split shared expenses equally and add them directly to personal expense records</ul>
-          
-          <ul>Settings & Account Management: Notification controls, profile updates, secure logout, and full account/data deletion</ul>
-          
-          <h5>🔹Technology & Architecture</h5>
-          
-          <ul>Programming Language: Kotlin</ul>
-          
-          <ul>Architecture: MVVM (Model–View–ViewModel)</ul>
-          
-          <ul>Platform: Android (API 30+)</ul>
-          
-          <ul>IDE: Android Studio</ul>
-          
-          <ul>Backend & Database: Firebase Authentication & Firestore</ul>
-          
-          <ul>Background Tasks: WorkManager for subscription reminder notifications</ul>
-          
-          <h5>🔹Technical Highlights</h5>
-          
-          <ul>Clean MVVM-based project structure (model, view, viewmodel)</ul>
-          
-          <ul>Real-time data handling using Firebase Firestore</ul>
-          
-          <ul>Secure user authentication with Firebase Auth</ul>
-          
-          <ul>Gesture-based UI interactions and modern Android design patterns</ul>
-          
-          <ul>Optimized to run efficiently on both low-end and high-end Android devices</ul>
-      </p>
-  </ul>
+      AI & ML Engineer · Applied Artificial Intelligence<br>
+      BSc (Hons) Computer Science with Artificial Intelligence, University of Nottingham Malaysia
+    </p>
+  </section>
 
-  <h2>Contact</h2>
-  <p>
-    GitHub: <a href="https://github.com/Asifahamed3720">My Github</a><br />
-    LinkedIn: <a href="https://www.linkedin.com/in/asif-ahamed-709279379">My LinkedIn</a>
-  </p>
+  <!-- ===== PROJECTS ===== -->
+  <section>
+    <h2>Projects</h2>
+
+    <!-- ===== FYP CARD ===== -->
+    <div class="project-card">
+      <h3>From Normals to Mesh</h3>
+      <p class="project-subtitle">
+        Undergraduate Final Year Dissertation · Computer Vision & 3D Geometry
+      </p>
+
+      <p>
+        Research-grade 3D reconstruction pipeline for generating accurate,
+        watertight vascular surface meshes from contrast-enhanced CT data.
+        The project evaluates how surface normal estimation and orientation
+        strategies influence reconstruction quality using Screened Poisson
+        Surface Reconstruction.
+      </p>
+
+      <ul>
+        <li>Designed and compared two complete reconstruction pipelines under identical conditions</li>
+        <li>Processed multiple full-resolution CT volumes with expert-validated segmentations</li>
+        <li>Converted segmented volumes into adaptive point clouds for thin vascular structures</li>
+        <li>Implemented PCA+SDF and Geodesic PCA+MST normal orientation strategies</li>
+        <li>Evaluated mesh quality using RMS error, Chamfer distance, and Hausdorff distance</li>
+        <li>Achieved sub-voxel surface accuracy relative to CT voxel resolution</li>
+      </ul>
+
+      <p class="tech">
+        <strong>Tech:</strong> Python, PyTorch, OpenCV, Open3D, NumPy, PyVista
+      </p>
+    </div>
+
+    <!-- ===== BALANCE BUDDY CARD ===== -->
+    <div class="project-card">
+      <h3>Balance Buddy</h3>
+      <p class="project-subtitle">
+        Budget Management Android Application
+      </p>
+
+      <p>
+        Lightweight Android budgeting application designed for expense tracking,
+        subscription management, and financial insights, with a focus on
+        performance and accessibility in low-resource environments.
+      </p>
+
+      <ul>
+        <li>Built using Kotlin following MVVM (Model–View–ViewModel) architecture</li>
+        <li>Dashboard overview for expenses, budgets, and recent transactions</li>
+        <li>Expense, income, and subscription tracking with reminder notifications</li>
+        <li>Firebase Authentication and Firestore for secure data handling</li>
+        <li>Background tasks implemented using WorkManager</li>
+        <li>Optimized UI and performance for both low-end and high-end Android devices</li>
+      </ul>
+
+      <p class="tech">
+        <strong>Tech:</strong> Kotlin, MVVM, Firebase, Firestore, Android Studio
+      </p>
+    </div>
+
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section>
+    <h2>Contact</h2>
+    <p>
+      GitHub:
+      <a href="https://github.com/Asifahamed3720">github.com/Asifahamed3720</a><br>
+      LinkedIn:
+      <a href="https://www.linkedin.com/in/asif-ahamed-709279379">
+        linkedin.com/in/asif-ahamed
+      </a>
+    </p>
+  </section>
+
 </body>
 </html>
