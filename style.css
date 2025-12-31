@@ -282,13 +282,13 @@ a:hover::after {
 }
 
 .project-wrapper:hover .project-image.left {
-  transform: translate(-140%, -50%) scale(1);
+  transform: translate(-300%, -50%) scale(1);
   opacity: 1;
   filter: blur(0);
 }
 
 .project-wrapper:hover .project-image.right {
-  transform: translate(140%, -50%) scale(1);
+  transform: translate(300%, -50%) scale(1);
   opacity: 1;
   filter: blur(0);
 }
