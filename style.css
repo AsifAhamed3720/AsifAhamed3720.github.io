@@ -233,3 +233,66 @@ a:hover::after {
     font-size: 0.95rem;
   }
 }
+
+@media (max-width: 768px) {
+  .project-image {
+    display: none;
+  }
+}
+
+/* =========================
+   Images
+========================= */
+.project-wrapper {
+  position: relative;
+  margin-bottom: 80px;
+}
+
+.project-image {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  width: 220px;
+  height: auto;
+
+  opacity: 0;
+  filter: blur(6px);
+
+  transition:
+    transform 0.6s ease,
+    opacity 0.6s ease,
+    filter 0.6s ease;
+
+  z-index: 0;
+}
+
+.project-image.left {
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.project-image.right {
+  right: 50%;
+  transform: translate(50%, -50%) scale(0.95);
+}
+
+.project-wrapper .project-card {
+  position: relative;
+  z-index: 2;
+}
+
+.project-wrapper:hover .project-image.left {
+  transform: translate(-140%, -50%) scale(1);
+  opacity: 1;
+  filter: blur(0);
+}
+
+.project-wrapper:hover .project-image.right {
+  transform: translate(140%, -50%) scale(1);
+  opacity: 1;
+  filter: blur(0);
+}
+
+
+
+
