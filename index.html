@@ -22,93 +22,149 @@
     <h2>Projects</h2>
 
     <!-- ===== FYP CARD ===== -->
-    <div class="project-wrapper">
-      <img src="images/test left.png" class="project-image left" alt="FYP view 1">
-      <img src="images/testright.png" class="project-image right" alt="FYP view 2">
-      <div class="project-card">
-        <h3>From Normals to Mesh</h3>
-        <p class="project-subtitle">
-          Undergraduate Final Year Dissertation · Computer Vision & 3D Geometry
-        </p>
-  
-        <p>
-          Research-grade 3D reconstruction pipeline for generating accurate,
-          watertight vascular surface meshes from contrast-enhanced CT data.
-          The project evaluates how surface normal estimation and orientation
-          strategies influence reconstruction quality using Screened Poisson
-          Surface Reconstruction.
-        </p>
-  
-        <ul>
-          <li>Designed and compared two complete reconstruction pipelines under identical conditions</li>
-          <li>Processed multiple full-resolution CT volumes with expert-validated segmentations</li>
-          <li>Converted segmented volumes into adaptive point clouds for thin vascular structures</li>
-          <li>Implemented Principle Component Analysis + Signed Dsistance Function and Geodesic Principle Component Analysis + Minimum Spanning Tree normal orientation strategies</li>
-          <li>Evaluated mesh quality using RMS error, Chamfer distance, and Hausdorff distance</li>
-          <li>Achieved sub-voxel surface accuracy relative to CT voxel resolution</li>
-        </ul>
-  
-        <p class="tech">
-          <strong>Tech:</strong> Python, PyTorch, OpenCV, Open3D, NumPy, PyVista
-        </p>
-      </div>
+    <div class="project-wrapper fyp-wrapper">
+            <!-- LEFT SIDE -->
+        <img src="images/FYPtopleft.png"
+            class="project-image left top"
+            alt="FYP top left view">
+
+        <img src="images/FYPbottomleft.png"
+            class="project-image left bottom"
+            alt="FYP bottom left view">
+
+        <!-- RIGHT SIDE -->
+        <img src="images/FYPtopright.png"
+            class="project-image right top"
+            alt="FYP top right view">
+
+        <img src="images/FYPbottomright.png"
+            class="project-image right bottom"
+            alt="FYP bottom right view">
+        <div class="project-card">
+          <h3>From Normals to Mesh</h3>
+          <p class="project-subtitle">
+            Undergraduate Final Year Dissertation · Computer Vision & 3D Geometry
+          </p>
+    
+          <p>
+            Research-grade 3D reconstruction pipeline for generating accurate,
+            watertight vascular surface meshes from contrast-enhanced CT data.
+            The project evaluates how surface normal estimation and orientation
+            strategies influence reconstruction quality using Screened Poisson
+            Surface Reconstruction.
+          </p>
+    
+          <ul>
+            <li>Designed and compared two complete reconstruction pipelines under identical conditions</li>
+            <li>Processed multiple full-resolution CT volumes with expert-validated segmentations</li>
+            <li>Converted segmented volumes into adaptive point clouds for thin vascular structures</li>
+            <li>Implemented Principle Component Analysis + Signed Dsistance Function and Geodesic Principle Component Analysis + Minimum Spanning Tree normal orientation strategies</li>
+            <li>Evaluated mesh quality using RMS error, Chamfer distance, and Hausdorff distance</li>
+            <li>Achieved sub-voxel surface accuracy relative to CT voxel resolution</li>
+          </ul>
+    
+          <p class="tech">
+            <strong>Tech:</strong> Python, PyTorch, OpenCV, Open3D, NumPy, PyVista
+          </p>
+        </div>
     </div>  
 
-    <!-- ===== BALANCE BUDDY CARD ===== -->
+        <!-- ===== BALANCE BUDDY CARD (WITH IMAGE HOVER EFFECT) ===== -->
+    <div class="project-wrapper">
+
+      <img src="images/Balancebuddyleft.png"
+          class="project-image left"
+          alt="Balance Buddy left view">
+
+      <img src="images/Balancebuddyright.png"
+          class="project-image right"
+          alt="Balance Buddy right view">
+
+      <div class="project-card">
+        <h3>Balance Buddy</h3>
+        <p class="project-subtitle">
+          Budget Management Android Application
+        </p>
+
+        <p>
+          Lightweight Android budgeting application designed for expense tracking,
+          subscription management, and financial insights, with a focus on
+          performance and accessibility in low-resource environments.
+        </p>
+
+        <ul>
+          <li>Built using Kotlin following MVVM (Model–View–ViewModel) architecture</li>
+          <li>Dashboard overview for expenses, budgets, and recent transactions</li>
+          <li>Expense, income, and subscription tracking with reminder notifications</li>
+          <li>Firebase Authentication and Firestore for secure data handling</li>
+          <li>Background tasks implemented using WorkManager</li>
+          <li>Optimized UI for both low-end and high-end Android devices</li>
+        </ul>
+
+        <p class="tech">
+          <strong>Tech:</strong> Kotlin, MVVM, Firebase, Firestore, Android Studio
+        </p>
+      </div>
+
+    </div>
+
+
+      <!-- ===== SEATRU CARD ===== -->
     <div class="project-card">
-      <h3>Balance Buddy</h3>
+      <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
       <p class="project-subtitle">
-        Budget Management Android Application
+        Full-Stack Web Application · Team Project (4 members)
       </p>
 
       <p>
-        Lightweight Android budgeting application designed for expense tracking,
-        subscription management, and financial insights, with a focus on
-        performance and accessibility in low-resource environments.
+        Full-stack web platform developed for the Sea Turtle Research Unit (SEATRU), Malaysia,
+        designed to support marine conservation through crowdfunding, public engagement,
+        and transparent tracking of conservation efforts.
       </p>
 
       <ul>
-        <li>Built using Kotlin following MVVM (Model–View–ViewModel) architecture</li>
-        <li>Dashboard overview for expenses, budgets, and recent transactions</li>
-        <li>Expense, income, and subscription tracking with reminder notifications</li>
-        <li>Firebase Authentication and Firestore for secure data handling</li>
-        <li>Background tasks implemented using WorkManager</li>
-        <li>Optimized UI and performance for both low-end and high-end Android devices</li>
+        <li>Crowdfunding and donation system with authentication and anonymous donor support</li>
+        <li>Interactive turtle tracking using real-world satellite coordinates on maps</li>
+        <li>Environmental data visualization for turtle nests (temperature & humidity)</li>
+        <li>Automated email notifications for donor updates and engagement</li>
+        <li>Admin dashboard enabling non-technical staff to manage conservation data</li>
+        <li>Role-based access control separating admin and public user functionality</li>
       </ul>
 
       <p class="tech">
-        <strong>Tech:</strong> Kotlin, MVVM, Firebase, Firestore, Android Studio
+        <strong>Tech:</strong> React.js, Laravel, MySQL, REST APIs, Leaflet.js, Git, Agile/Scrum
       </p>
     </div>
 
-    <!-- ===== Web Crawler Card ===== -->
+        <!-- ===== Web Crawler Card ===== -->
     <div class="project-card">
-      <h3>Query Based Web Crawler</h3>
+      <h3>Intelligent Budgeted Web Crawler</h3>
       <p class="project-subtitle">
-        Intelligent Budgeted Web Crawler with Active Embedding-Based Adaptation
+        Active Embedding-Based Adaptation · AI Systems Project
       </p>
 
       <p>
-        Research-grade 3D reconstruction pipeline for generating accurate,
-        watertight vascular surface meshes from contrast-enhanced CT data.
-        The project evaluates how surface normal estimation and orientation
-        strategies influence reconstruction quality using Screened Poisson
-        Surface Reconstruction.
+        AI-powered web crawler designed to autonomously discover and prioritize
+        topic-relevant web pages under a fixed crawl budget. The system models
+        web crawling as a sequential decision-making problem using semantic relevance
+        and adaptive prioritization.
       </p>
 
       <ul>
-        <li>Designed and compared two complete reconstruction pipelines under identical conditions</li>
-        <li>Processed multiple full-resolution CT volumes with expert-validated segmentations</li>
-        <li>Converted segmented volumes into adaptive point clouds for thin vascular structures</li>
-        <li>Implemented Principle Component Analysis + Signed Dsistance Function and Geodesic Principle Component Analysis + Minimum Spanning Tree normal orientation strategies</li>
-        <li>Evaluated mesh quality using RMS error, Chamfer distance, and Hausdorff distance</li>
-        <li>Achieved sub-voxel surface accuracy relative to CT voxel resolution</li>
+        <li>Used Sentence-BERT embeddings to semantically score page relevance and anchor text</li>
+        <li>Integrated a pretrained QA model to extract concise, query-focused snippets</li>
+        <li>Implemented greedy, budget-aware prioritization for near-optimal crawl selection</li>
+        <li>Designed a fine-tuning loop to continuously improve embeddings using crawl data</li>
+        <li>Evaluated performance across multiple runs for precision, recall, and diversity</li>
+        <li>Outperformed breadth-first and TF-IDF-based focused crawling baselines</li>
       </ul>
 
       <p class="tech">
-        <strong>Tech:</strong> Python, PyTorch, OpenCV, Open3D, NumPy, PyVista
+        <strong>Tech:</strong> Python, Sentence-BERT, Transformers, Intelligent Agents, Web Crawling
       </p>
     </div>
+
+
 
   </section>
 
