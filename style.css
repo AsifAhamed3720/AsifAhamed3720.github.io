@@ -264,6 +264,7 @@ a:hover::after {
 
 
 .project-image {
+  
   position: absolute;
   top: 50%;
   transform: translateY(-50%) scale(0.95);
@@ -292,41 +293,91 @@ a:hover::after {
   transform: translate(50%, -50%) scale(0.95);
 }
 
+.project-image.top {
+  --y-offset: -120%;
+}
+
+.project-image.bottom {
+  --y-offset: -10%;
+}
+
 .project-wrapper .project-card {
   position: relative;
   z-index: 2;
 }
 
 /* on hover, move image centers to a position just inside the page edge */
-.project-wrapper:hover .project-image.left {
+.project-wrapper:not(.fyp-wrapper):hover .project-image.left {
   transform: translate(
     calc(
-      -50%            /* keep the image centered on wrapper center */
-      - 50vw          /* move to viewport left edge */
-      + (var(--edge-gap) + (var(--proj-img-w) / 2)) /* pull back by gap + half image */
+      -50%
+      - 50vw
+      + (var(--edge-gap) + (var(--proj-img-w) / 2))
     ),
     -50%
   ) scale(1);
   z-index: 3;
 }
 
-.project-wrapper:hover .project-image.right {
+.project-wrapper:not(.fyp-wrapper):hover .project-image.right {
   transform: translate(
     calc(
-      50%             /* keep the image centered on wrapper center */
-      + 50vw          /* move to viewport right edge */
-      - (var(--edge-gap) + (var(--proj-img-w) / 2)) /* pull back by gap + half image */
+      50%
+      + 50vw
+      - (var(--edge-gap) + (var(--proj-img-w) / 2))
     ),
     -50%
   ) scale(1);
   z-index: 3;
 }
+
 
 .project-wrapper:hover .project-image.left,
 .project-wrapper:hover .project-image.right {
   opacity: 1;
   filter: none;
   /* keep transform changes from existing rules */
+}
+
+/* ===== FYP FLOWER EFFECT ===== */
+
+.fyp-wrapper .project-image {
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.fyp-wrapper:hover .project-image.left.top,
+.fyp-wrapper:hover .project-image.left.bottom {
+  transform: translate(
+    calc(
+      -50%
+      - 50vw
+      + (var(--edge-gap) + (var(--proj-img-w) / 2))
+    ),
+    var(--y-offset)
+  ) scale(1);
+  z-index: 3;
+}
+
+.fyp-wrapper:hover .project-image.right.top,
+.fyp-wrapper:hover .project-image.right.bottom {
+  transform: translate(
+    calc(
+      -50%
+      + 50vw
+      - (var(--edge-gap) + (var(--proj-img-w) / 2))
+    ),
+    var(--y-offset)
+  ) scale(1);
+  z-index: 3;
+}
+
+
+/* ensure all appear smoothly */
+.fyp-wrapper:hover .project-image {
+  opacity: 1;
+  filter: none;
 }
 
 
