@@ -1,5 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+  <script>
+  function updateCardWidths() {
+    document.querySelectorAll('.project-wrapper').forEach(wrapper => {
+      const card = wrapper.querySelector('.project-card');
+      if (!card) return;
+
+      const cardWidth = card.offsetWidth;
+      wrapper.style.setProperty('--card-width', `${cardWidth}px`);
+
+      // Calculate image scale based on available space
+      const viewportWidth = window.innerWidth;
+      const edgeGap = 48; // matches CSS var(--edge-gap)
+      const imageWidth = 220; // matches CSS var(--proj-img-w)
+      
+      // Calculate available space on each side
+      const availableSpace = (viewportWidth - cardWidth) / 2 - edgeGap - imageWidth;
+      
+      // If images would overflow, scale them down
+      if (availableSpace < 0) {
+        const maxImageWidth = (viewportWidth - cardWidth) / 2 - edgeGap * 2;
+        const scale = Math.max(0.4, maxImageWidth / imageWidth); // minimum scale of 0.4
+        wrapper.style.setProperty('--image-scale', scale);
+      } else {
+        wrapper.style.setProperty('--image-scale', '1');
+      }
+    });
+  }
+
+  window.addEventListener('load', updateCardWidths);
+  window.addEventListener('resize', updateCardWidths);
+</script>
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -110,41 +142,30 @@
 
 
       <!-- ===== SEATRU CARD ===== -->
-    <div class="project-wrapper">
-      
-      <img src="images/SEATRUleft.png"
-          class="project-image left"
-          alt="Balance Buddy left view">
+    <div class="project-card">
+      <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
+      <p class="project-subtitle">
+        Full-Stack Web Application · Team Project (4 members)
+      </p>
 
-      <img src="images/SEATRUright.png"
-          class="project-image right"
-          alt="Balance Buddy right view">
-      
-      <div class="project-card">
-        <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
-        <p class="project-subtitle">
-          Full-Stack Web Application · Team Project (4 members)
-        </p>
-  
-        <p>
-          Full-stack web platform developed for the Sea Turtle Research Unit (SEATRU), Malaysia,
-          designed to support marine conservation through crowdfunding, public engagement,
-          and transparent tracking of conservation efforts.
-        </p>
-  
-        <ul>
-          <li>Crowdfunding and donation system with authentication and anonymous donor support</li>
-          <li>Interactive turtle tracking using real-world satellite coordinates on maps</li>
-          <li>Environmental data visualization for turtle nests (temperature & humidity)</li>
-          <li>Automated email notifications for donor updates and engagement</li>
-          <li>Admin dashboard enabling non-technical staff to manage conservation data</li>
-          <li>Role-based access control separating admin and public user functionality</li>
-        </ul>
-  
-        <p class="tech">
-          <strong>Tech:</strong> React.js, Laravel, MySQL, REST APIs, Leaflet.js, Git, Agile/Scrum
-        </p>
-      </div>
+      <p>
+        Full-stack web platform developed for the Sea Turtle Research Unit (SEATRU), Malaysia,
+        designed to support marine conservation through crowdfunding, public engagement,
+        and transparent tracking of conservation efforts.
+      </p>
+
+      <ul>
+        <li>Crowdfunding and donation system with authentication and anonymous donor support</li>
+        <li>Interactive turtle tracking using real-world satellite coordinates on maps</li>
+        <li>Environmental data visualization for turtle nests (temperature & humidity)</li>
+        <li>Automated email notifications for donor updates and engagement</li>
+        <li>Admin dashboard enabling non-technical staff to manage conservation data</li>
+        <li>Role-based access control separating admin and public user functionality</li>
+      </ul>
+
+      <p class="tech">
+        <strong>Tech:</strong> React.js, Laravel, MySQL, REST APIs, Leaflet.js, Git, Agile/Scrum
+      </p>
     </div>
 
         <!-- ===== Web Crawler Card ===== -->
