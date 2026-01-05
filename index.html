@@ -28,7 +28,73 @@
     });
   }
 
-  window.addEventListener('load', updateCardWidths);
+  // Lightbox functionality
+  function setupLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.querySelector('.lightbox-close');
+
+    document.querySelectorAll('.project-image').forEach(img => {
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        lightbox.style.display = 'flex';
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+        closeLightbox();
+      }
+    });
+  }
+
+  function setupCardTilt() {
+    document.querySelectorAll('.project-wrapper').forEach(wrapper => {
+      const card = wrapper.querySelector('.project-card');
+      if (!card) return;
+
+      wrapper.addEventListener('mousemove', e => {
+        const r = wrapper.getBoundingClientRect();
+        const x = e.clientX - r.left;
+        const y = e.clientY - r.top;
+
+        const px = (x / r.width) * 2 - 1;
+        const py = (y / r.height) * 2 - 1;
+
+        card.style.setProperty('--rx', `${-py * 8}deg`);
+        card.style.setProperty('--ry', `${px * 8}deg`);
+        card.style.setProperty('--ty', `-10px`);
+      });
+
+      wrapper.addEventListener('mouseleave', () => {
+        card.style.setProperty('--rx', `0deg`);
+        card.style.setProperty('--ry', `0deg`);
+        card.style.setProperty('--ty', `0px`);
+      });
+    });
+  }
+
+  window.addEventListener('load', () => {
+    updateCardWidths();
+    setupLightbox();
+    setupCardTilt();
+  });
   window.addEventListener('resize', updateCardWidths);
 </script>
 
@@ -144,26 +210,26 @@
       <!-- ===== SEATRU CARD ===== -->
     <div class="project-wrapper">
       
-      <img src="images/SEATRUleft.png"
+      <img src="images/Seatruleft.png"
           class="project-image left"
           alt="SEATRU left view">
 
-      <img src="images/SEATRUright.png"
+      <img src="images/Seatruright.png"
           class="project-image right"
           alt="SEATRU right view">
-      
+
       <div class="project-card">
         <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
         <p class="project-subtitle">
           Full-Stack Web Application · Team Project (4 members)
         </p>
-  
+
         <p>
           Full-stack web platform developed for the Sea Turtle Research Unit (SEATRU), Malaysia,
           designed to support marine conservation through crowdfunding, public engagement,
           and transparent tracking of conservation efforts.
         </p>
-  
+
         <ul>
           <li>Crowdfunding and donation system with authentication and anonymous donor support</li>
           <li>Interactive turtle tracking using real-world satellite coordinates on maps</li>
@@ -172,7 +238,7 @@
           <li>Admin dashboard enabling non-technical staff to manage conservation data</li>
           <li>Role-based access control separating admin and public user functionality</li>
         </ul>
-  
+
         <p class="tech">
           <strong>Tech:</strong> React.js, Laravel, MySQL, REST APIs, Leaflet.js, Git, Agile/Scrum
         </p>
@@ -180,31 +246,33 @@
     </div>
 
         <!-- ===== Web Crawler Card ===== -->
-    <div class="project-card">
-      <h3>Intelligent Budgeted Web Crawler</h3>
-      <p class="project-subtitle">
-        Active Embedding-Based Adaptation · AI Systems Project
-      </p>
+    <div class="project-wrapper">
+      <div class="project-card">
+        <h3>Intelligent Budgeted Web Crawler</h3>
+        <p class="project-subtitle">
+          Active Embedding-Based Adaptation · AI Systems Project
+        </p>
 
-      <p>
-        AI-powered web crawler designed to autonomously discover and prioritize
-        topic-relevant web pages under a fixed crawl budget. The system models
-        web crawling as a sequential decision-making problem using semantic relevance
-        and adaptive prioritization.
-      </p>
+        <p>
+          AI-powered web crawler designed to autonomously discover and prioritize
+          topic-relevant web pages under a fixed crawl budget. The system models
+          web crawling as a sequential decision-making problem using semantic relevance
+          and adaptive prioritization.
+        </p>
 
-      <ul>
-        <li>Used Sentence-BERT embeddings to semantically score page relevance and anchor text</li>
-        <li>Integrated a pretrained QA model to extract concise, query-focused snippets</li>
-        <li>Implemented greedy, budget-aware prioritization for near-optimal crawl selection</li>
-        <li>Designed a fine-tuning loop to continuously improve embeddings using crawl data</li>
-        <li>Evaluated performance across multiple runs for precision, recall, and diversity</li>
-        <li>Outperformed breadth-first and TF-IDF-based focused crawling baselines</li>
-      </ul>
+        <ul>
+          <li>Used Sentence-BERT embeddings to semantically score page relevance and anchor text</li>
+          <li>Integrated a pretrained QA model to extract concise, query-focused snippets</li>
+          <li>Implemented greedy, budget-aware prioritization for near-optimal crawl selection</li>
+          <li>Designed a fine-tuning loop to continuously improve embeddings using crawl data</li>
+          <li>Evaluated performance across multiple runs for precision, recall, and diversity</li>
+          <li>Outperformed breadth-first and TF-IDF-based focused crawling baselines</li>
+        </ul>
 
-      <p class="tech">
-        <strong>Tech:</strong> Python, Sentence-BERT, Transformers, Intelligent Agents, Web Crawling
-      </p>
+        <p class="tech">
+          <strong>Tech:</strong> Python, Sentence-BERT, Transformers, Intelligent Agents, Web Crawling
+        </p>
+      </div>
     </div>
 
 
@@ -221,6 +289,12 @@
       </a>
     </p>
   </section>
+
+  <!-- ===== LIGHTBOX ===== -->
+  <div id="lightbox" class="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" class="lightbox-content" alt="">
+  </div>
 
 </body>
 </html>
