@@ -5,6 +5,7 @@
 :root {
   --proj-img-w: 220px;
   --edge-gap: 48px; /* gap between image edge and page edge */
+  --image-scale: 1; /* default scale for images */
 }
 
 * {
@@ -118,7 +119,7 @@ a:hover::after {
   -webkit-backdrop-filter: blur(14px);
   position: relative;
   overflow: visible;
-  width: 50%;
+  width: clamp(320px, 60%, 720px);
   margin: 0 auto 30px auto;
 
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -294,11 +295,11 @@ a:hover::after {
 }
 
 .project-image.top {
-  --y-offset: -120%;
+  --y-offset: -140%;
 }
 
 .project-image.bottom {
-  --y-offset: -10%;
+  --y-offset: 10%;
 }
 
 .project-wrapper .project-card {
@@ -311,11 +312,12 @@ a:hover::after {
   transform: translate(
     calc(
       -50%
-      - 50vw
-      + (var(--edge-gap) + (var(--proj-img-w) / 2))
+      - (var(--card-width) / 2)
+      - var(--edge-gap)
+      - (var(--proj-img-w) * var(--image-scale) / 2)
     ),
     -50%
-  ) scale(1);
+  ) scale(var(--image-scale));
   z-index: 3;
 }
 
@@ -323,11 +325,12 @@ a:hover::after {
   transform: translate(
     calc(
       50%
-      + 50vw
-      - (var(--edge-gap) + (var(--proj-img-w) / 2))
+      + (var(--card-width) / 2)
+      + var(--edge-gap)
+      + (var(--proj-img-w) * var(--image-scale) / 2)
     ),
     -50%
-  ) scale(1);
+  ) scale(var(--image-scale));
   z-index: 3;
 }
 
@@ -352,11 +355,12 @@ a:hover::after {
   transform: translate(
     calc(
       -50%
-      - 50vw
-      + (var(--edge-gap) + (var(--proj-img-w) / 2))
+      - (var(--card-width) / 2)
+      - var(--edge-gap)
+      - (var(--proj-img-w) * var(--image-scale) / 2)
     ),
     var(--y-offset)
-  ) scale(1);
+  ) scale(var(--image-scale));
   z-index: 3;
 }
 
@@ -365,11 +369,12 @@ a:hover::after {
   transform: translate(
     calc(
       -50%
-      + 50vw
-      - (var(--edge-gap) + (var(--proj-img-w) / 2))
+      + (var(--card-width) / 2)
+      + var(--edge-gap)
+      + (var(--proj-img-w) * var(--image-scale) / 2)
     ),
     var(--y-offset)
-  ) scale(1);
+  ) scale(var(--image-scale));
   z-index: 3;
 }
 
@@ -379,6 +384,3 @@ a:hover::after {
   opacity: 1;
   filter: none;
 }
-
-
-
