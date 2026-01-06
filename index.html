@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
   <script>
-  function updateCardWidths() {
-    document.querySelectorAll('.project-wrapper').forEach(wrapper => {
-      const card = wrapper.querySelector('.project-card');
-      if (!card) return;
+    function updateCardWidths() {
+      document.querySelectorAll('.project-wrapper').forEach(wrapper => {
+        const card = wrapper.querySelector('.project-card');
+        if (!card) return;
 
-      const cardWidth = card.offsetWidth;
-      wrapper.style.setProperty('--card-width', `${cardWidth}px`);
+        const cardWidth = card.offsetWidth;
+        wrapper.style.setProperty('--card-width', `${cardWidth}px`);
 
-      // Calculate image scale based on available space
-      const viewportWidth = window.innerWidth;
-      const edgeGap = 48; // matches CSS var(--edge-gap)
-      const imageWidth = 220; // matches CSS var(--proj-img-w)
-      
-      // Calculate available space on each side
-      const availableSpace = (viewportWidth - cardWidth) / 2 - edgeGap - imageWidth;
-      
-      // If images would overflow, scale them down
-      if (availableSpace < 0) {
-        const maxImageWidth = (viewportWidth - cardWidth) / 2 - edgeGap * 2;
-        const scale = Math.max(0.4, maxImageWidth / imageWidth); // minimum scale of 0.4
-        wrapper.style.setProperty('--image-scale', scale);
-      } else {
-        wrapper.style.setProperty('--image-scale', '1');
-      }
-    });
-  }
+        const viewportWidth = window.innerWidth;
+        const edgeGap = 48;
+        const imageWidth = 220;
+
+        // SAME LOGIC FOR ALL CARDS (FYP + regular)
+        const availableSpace =
+          (viewportWidth - cardWidth) / 2 - edgeGap - imageWidth;
+
+        if (availableSpace < 0) {
+          const maxImageWidth =
+            (viewportWidth - cardWidth) / 2 - edgeGap * 2;
+
+          const scale = Math.max(0.4, maxImageWidth / imageWidth);
+          wrapper.style.setProperty('--image-scale', scale);
+        } else {
+          wrapper.style.setProperty('--image-scale', '1');
+        }
+      });
+    }
+
 
   // Lightbox functionality
   function setupLightbox() {
@@ -34,19 +36,20 @@
     const lightboxImg = document.getElementById('lightbox-img');
     const closeBtn = document.querySelector('.lightbox-close');
 
-    document.querySelectorAll('.project-image').forEach(img => {
+    // Handle both regular and FYP images
+    document.querySelectorAll('.project-image, .fyp-flower-image').forEach(img => {
       img.addEventListener('click', (e) => {
         e.stopPropagation();
         lightbox.style.display = 'flex';
         lightboxImg.src = img.src;
         lightboxImg.alt = img.alt;
-        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        document.body.style.overflow = 'hidden';
       });
     });
 
     function closeLightbox() {
       lightbox.style.display = 'none';
-      document.body.style.overflow = ''; // Restore scrolling
+      document.body.style.overflow = '';
     }
 
     closeBtn.addEventListener('click', closeLightbox);
@@ -56,7 +59,6 @@
       }
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && lightbox.style.display === 'flex') {
         closeLightbox();
@@ -90,10 +92,103 @@
     });
   }
 
+  // Intersection Observer for scroll animations
+  function setupScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 150);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.project-wrapper').forEach(wrapper => {
+      observer.observe(wrapper);
+    });
+  }
+
+  // Smooth scroll to top
+  function setupScrollToTop() {
+    const scrollBtn = document.getElementById('scroll-to-top');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        scrollBtn.classList.add('visible');
+      } else {
+        scrollBtn.classList.remove('visible');
+      }
+    });
+
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  // Cursor glow effect
+  function setupCursorGlow() {
+    const glow = document.querySelector('.cursor-glow');
+    let mouseX = 0, mouseY = 0;
+    let glowX = 0, glowY = 0;
+    const speed = 0.15;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animate() {
+      glowX += (mouseX - glowX) * speed;
+      glowY += (mouseY - glowY) * speed;
+      
+      glow.style.left = glowX + 'px';
+      glow.style.top = glowY + 'px';
+      
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
+  // Filter projects
+  function setupFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const projects = document.querySelectorAll('.project-wrapper');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        projects.forEach(project => {
+          if (filter === 'all' || project.dataset.category === filter) {
+            project.style.display = 'block';
+            setTimeout(() => project.classList.add('visible'), 50);
+          } else {
+            project.classList.remove('visible');
+            setTimeout(() => project.style.display = 'none', 300);
+          }
+        });
+      });
+    });
+  }
+
   window.addEventListener('load', () => {
     updateCardWidths();
     setupLightbox();
     setupCardTilt();
+    setupScrollAnimations();
+    setupScrollToTop();
+    setupCursorGlow();
+    setupFilters();
   });
   window.addEventListener('resize', updateCardWidths);
 </script>
@@ -101,88 +196,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asif Ahamed Siddique | Portfolio</title>
+  <title>Asif Ahamed Siddique | AI & ML Engineer</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- Cursor Glow -->
+  <div class="cursor-glow"></div>
+
   <!-- ===== HERO ===== -->
-  <section>
-    <h1>Asif Ahamed Siddique</h1>
-    <p>
-      AI & ML Engineer · Applied Artificial Intelligence<br>
-      BSc (Hons) Computer Science with Artificial Intelligence, University of Nottingham Malaysia
-    </p>
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">Available for Opportunities</div>
+      <h1 class="hero-title">
+        <span class="gradient-text">Asif Ahamed Siddique</span>
+      </h1>
+      <p class="hero-subtitle">
+        AI & ML Engineer · Applied Artificial Intelligence
+      </p>
+      <p class="hero-description">
+        BSc (Hons) Computer Science with Artificial Intelligence<br>
+        University of Nottingham Malaysia
+      </p>
+
+    </div>
+    <div class="hero-decoration">
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section class="about-section">
+    <h2>About Me</h2>
+    <div class="about-content">
+      <p>
+        I'm an AI & ML Engineer passionate about leveraging artificial intelligence 
+        to solve complex real-world problems. With expertise spanning computer vision, 
+        full-stack development, and intelligent systems, I focus on building solutions 
+        that make a tangible impact.
+      </p>
+      <div class="skills-grid">
+        <div class="skill-category">
+          <h4>AI & Machine Learning</h4>
+          <div class="skill-tags">
+            <span class="skill-tag">PyTorch</span>
+            <span class="skill-tag">Computer Vision</span>
+            <span class="skill-tag">Deep Learning</span>
+            <span class="skill-tag">NLP</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h4>Development</h4>
+          <div class="skill-tags">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">React.js</span>
+            <span class="skill-tag">Kotlin</span>
+            <span class="skill-tag">Laravel</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h4>Tools & Platforms</h4>
+          <div class="skill-tags">
+            <span class="skill-tag">Firebase</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">MySQL</span>
+            <span class="skill-tag">REST APIs</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ===== PROJECTS ===== -->
   <section>
-    <h2>Projects</h2>
+    <h2>Featured Projects</h2>
+    
+    <!-- Filter Buttons -->
+    <div class="filter-container">
+      <button class="filter-btn active" data-filter="all">All Projects</button>
+      <button class="filter-btn" data-filter="compvision">Computer Vision</button>
+      <button class="filter-btn" data-filter="web">Web Development</button>
+      <button class="filter-btn" data-filter="mobile">Mobile</button>
+      <button class="filter-btn" data-filter="ai-ml">AI/ML</button>
+    </div>
 
     <!-- ===== FYP CARD ===== -->
-    <div class="project-wrapper fyp-wrapper">
-            <!-- LEFT SIDE -->
-        <img src="images/FYPtopleft.png"
-            class="project-image left top"
-            alt="FYP top left view">
-
-        <img src="images/FYPbottomleft.png"
-            class="project-image left bottom"
-            alt="FYP bottom left view">
-
-        <!-- RIGHT SIDE -->
-        <img src="images/FYPtopright.png"
-            class="project-image right top"
-            alt="FYP top right view">
-
-        <img src="images/FYPbottomright.png"
-            class="project-image right bottom"
-            alt="FYP bottom right view">
-        <div class="project-card">
-          <h3>From Normals to Mesh</h3>
-          <p class="project-subtitle">
-            Undergraduate Final Year Dissertation · Computer Vision & 3D Geometry
-          </p>
-    
-          <p>
-            Research-grade 3D reconstruction pipeline for generating accurate,
-            watertight vascular surface meshes from contrast-enhanced CT data.
-            The project evaluates how surface normal estimation and orientation
-            strategies influence reconstruction quality using Screened Poisson
-            Surface Reconstruction.
-          </p>
-    
-          <ul>
-            <li>Designed and compared two complete reconstruction pipelines under identical conditions</li>
-            <li>Processed multiple full-resolution CT volumes with expert-validated segmentations</li>
-            <li>Converted segmented volumes into adaptive point clouds for thin vascular structures</li>
-            <li>Implemented Principle Component Analysis + Signed Dsistance Function and Geodesic Principle Component Analysis + Minimum Spanning Tree normal orientation strategies</li>
-            <li>Evaluated mesh quality using RMS error, Chamfer distance, and Hausdorff distance</li>
-            <li>Achieved sub-voxel surface accuracy relative to CT voxel resolution</li>
-          </ul>
-    
-          <p class="tech">
-            <strong>Tech:</strong> Python, PyTorch, OpenCV, Open3D, NumPy, PyVista
-          </p>
+    <div class="project-wrapper fyp-wrapper" data-category="compvision">
+      <img src="images/FYPtopleft.png" class="fyp-flower-image left top" alt="FYP top left view">
+      <img src="images/FYPbottomleft.png" class="fyp-flower-image left bottom" alt="FYP bottom left view">
+      <img src="images/FYPtopright.png" class="fyp-flower-image right top" alt="FYP top right view">
+      <img src="images/FYPbottomright.png" class="fyp-flower-image right bottom" alt="FYP bottom right view">
+      
+      <div class="project-card">
+        <div class="project-header">
+          <div>
+            <h3>From Normals to Mesh</h3>
+            <p class="project-subtitle">
+              Undergraduate Final Year Dissertation · Computer Vision & 3D Geometry
+            </p>
+          </div>
+          <div class="project-badge">Computer Vision</div>
         </div>
+  
+        <p>
+          Research-grade 3D reconstruction pipeline for generating accurate,
+          watertight vascular surface meshes from contrast-enhanced CT data.
+          The project evaluates how surface normal estimation and orientation
+          strategies influence reconstruction quality using Screened Poisson
+          Surface Reconstruction.
+        </p>
+  
+        <div class="project-highlights">
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Designed and compared two complete reconstruction pipelines under identical conditions</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Processed multiple full-resolution CT volumes with expert-validated segmentations</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Implemented PCA + SDF and Geodesic PCA + MST normal orientation strategies</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Achieved sub-voxel surface accuracy relative to CT voxel resolution</span>
+          </div>
+        </div>
+  
+        <div class="tech-stack">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">PyTorch</span>
+          <span class="tech-tag">OpenCV</span>
+          <span class="tech-tag">Open3D</span>
+          <span class="tech-tag">NumPy</span>
+          <span class="tech-tag">PyVista</span>
+        </div>
+      </div>
     </div>  
 
-        <!-- ===== BALANCE BUDDY CARD (WITH IMAGE HOVER EFFECT) ===== -->
-    <div class="project-wrapper">
-
-      <img src="images/Balancebuddyleft.png"
-          class="project-image left"
-          alt="Balance Buddy left view">
-
-      <img src="images/Balancebuddyright.png"
-          class="project-image right"
-          alt="Balance Buddy right view">
+    <!-- ===== BALANCE BUDDY CARD ===== -->
+    <div class="project-wrapper" data-category="mobile">
+      <img src="images/Balancebuddyleft.png" class="project-image left" alt="Balance Buddy left view">
+      <img src="images/Balancebuddyright.png" class="project-image right" alt="Balance Buddy right view">
 
       <div class="project-card">
-        <h3>Balance Buddy</h3>
-        <p class="project-subtitle">
-          Budget Management Android Application
-        </p>
+        <div class="project-header">
+          <div>
+            <h3>Balance Buddy</h3>
+            <p class="project-subtitle">Budget Management Android Application</p>
+          </div>
+          <div class="project-badge mobile">Mobile</div>
+        </div>
 
         <p>
           Lightweight Android budgeting application designed for expense tracking,
@@ -190,39 +358,48 @@
           performance and accessibility in low-resource environments.
         </p>
 
-        <ul>
-          <li>Built using Kotlin following MVVM (Model–View–ViewModel) architecture</li>
-          <li>Dashboard overview for expenses, budgets, and recent transactions</li>
-          <li>Expense, income, and subscription tracking with reminder notifications</li>
-          <li>Firebase Authentication and Firestore for secure data handling</li>
-          <li>Background tasks implemented using WorkManager</li>
-          <li>Optimized UI for both low-end and high-end Android devices</li>
-        </ul>
+        <div class="project-highlights">
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Built using Kotlin following MVVM architecture</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Dashboard overview for expenses, budgets, and recent transactions</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Firebase Authentication and Firestore for secure data handling</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Optimized UI for both low-end and high-end Android devices</span>
+          </div>
+        </div>
 
-        <p class="tech">
-          <strong>Tech:</strong> Kotlin, MVVM, Firebase, Firestore, Android Studio
-        </p>
+        <div class="tech-stack">
+          <span class="tech-tag">Kotlin</span>
+          <span class="tech-tag">MVVM</span>
+          <span class="tech-tag">Firebase</span>
+          <span class="tech-tag">Firestore</span>
+          <span class="tech-tag">Android Studio</span>
+        </div>
       </div>
-
     </div>
 
-
-      <!-- ===== SEATRU CARD ===== -->
-    <div class="project-wrapper">
-      
-      <img src="images/SEATRUleft.png"
-          class="project-image left"
-          alt="SEATRU left view">
-
-      <img src="images/SEATRUright.png"
-          class="project-image right"
-          alt="SEATRU right view">
+    <!-- ===== SEATRU CARD ===== -->
+    <div class="project-wrapper" data-category="web">
+      <img src="images/SEATRUleft.png" class="project-image left" alt="SEATRU left view">
+      <img src="images/SEATRUright.png" class="project-image right" alt="SEATRU right view">
 
       <div class="project-card">
-        <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
-        <p class="project-subtitle">
-          Full-Stack Web Application · Team Project (4 members)
-        </p>
+        <div class="project-header">
+          <div>
+            <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
+            <p class="project-subtitle">Full-Stack Web Application · Team Project (4 members)</p>
+          </div>
+          <div class="project-badge web">Web</div>
+        </div>
 
         <p>
           Full-stack web platform developed for the Sea Turtle Research Unit (SEATRU), Malaysia,
@@ -230,35 +407,49 @@
           and transparent tracking of conservation efforts.
         </p>
 
-        <ul>
-          <li>Crowdfunding and donation system with authentication and anonymous donor support</li>
-          <li>Interactive turtle tracking using real-world satellite coordinates on maps</li>
-          <li>Environmental data visualization for turtle nests (temperature & humidity)</li>
-          <li>Automated email notifications for donor updates and engagement</li>
-          <li>Admin dashboard enabling non-technical staff to manage conservation data</li>
-          <li>Role-based access control separating admin and public user functionality</li>
-        </ul>
+        <div class="project-highlights">
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Crowdfunding and donation system with authentication and anonymous donor support</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Interactive turtle tracking using real-world satellite coordinates on maps</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Environmental data visualization for turtle nests (temperature & humidity)</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Role-based access control separating admin and public user functionality</span>
+          </div>
+        </div>
 
-        <p class="tech">
-          <strong>Tech:</strong> React.js, Laravel, MySQL, REST APIs, Leaflet.js, Git, Agile/Scrum
-        </p>
+        <div class="tech-stack">
+          <span class="tech-tag">React.js</span>
+          <span class="tech-tag">Laravel</span>
+          <span class="tech-tag">MySQL</span>
+          <span class="tech-tag">REST APIs</span>
+          <span class="tech-tag">Leaflet.js</span>
+          <span class="tech-tag">Git</span>
+        </div>
       </div>
     </div>
 
-        <!-- ===== Web Crawler Card ===== -->
-    <div class="project-wrapper">
-      <img src="images/webcrawlerleft.png"
-          class="project-image left"
-          alt="Web crawler left view">
-
-      <img src="images/webcrawlerright.png"
-          class="project-image right"
-          alt="Web crawler right view">
+    <!-- ===== Web Crawler Card ===== -->
+    <div class="project-wrapper" data-category="ai-ml">
+      <img src="images/webcrawlerleft.png" class="project-image left" alt="Web crawler left view">
+      <img src="images/webcrawlerright.png" class="project-image right" alt="Web crawler right view">
+      
       <div class="project-card">
-        <h3>Intelligent Budgeted Web Crawler</h3>
-        <p class="project-subtitle">
-          Active Embedding-Based Adaptation · AI Systems Project
-        </p>
+        <div class="project-header">
+          <div>
+            <h3>Intelligent Budgeted Web Crawler</h3>
+            <p class="project-subtitle">Active Embedding-Based Adaptation · AI Systems Project</p>
+          </div>
+          <div class="project-badge">AI/ML</div>
+        </div>
 
         <p>
           AI-powered web crawler designed to autonomously discover and prioritize
@@ -267,35 +458,63 @@
           and adaptive prioritization.
         </p>
 
-        <ul>
-          <li>Used Sentence-BERT embeddings to semantically score page relevance and anchor text</li>
-          <li>Integrated a pretrained QA model to extract concise, query-focused snippets</li>
-          <li>Implemented greedy, budget-aware prioritization for near-optimal crawl selection</li>
-          <li>Designed a fine-tuning loop to continuously improve embeddings using crawl data</li>
-          <li>Evaluated performance across multiple runs for precision, recall, and diversity</li>
-          <li>Outperformed breadth-first and TF-IDF-based focused crawling baselines</li>
-        </ul>
+        <div class="project-highlights">
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Used Sentence-BERT embeddings to semantically score page relevance and anchor text</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Integrated a pretrained QA model to extract concise, query-focused snippets</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Implemented greedy, budget-aware prioritization for near-optimal crawl selection</span>
+          </div>
+          <div class="highlight-item">
+            <span class="highlight-icon">✓</span>
+            <span>Outperformed breadth-first and TF-IDF-based focused crawling baselines</span>
+          </div>
+        </div>
 
-        <p class="tech">
-          <strong>Tech:</strong> Python, Sentence-BERT, Transformers, Intelligent Agents, Web Crawling
-        </p>
+        <div class="tech-stack">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Sentence-BERT</span>
+          <span class="tech-tag">Transformers</span>
+          <span class="tech-tag">Intelligent Agents</span>
+        </div>
       </div>
     </div>
-
-
-
   </section>
 
   <!-- ===== CONTACT ===== -->
-  <section>
-    <h2>Contact</h2>
-    <p>
-      <a href="https://github.com/Asifahamed3720">My Github</a><br>
-      <a href="https://www.linkedin.com/in/asif-ahamed-709279379">
-        My LinkedIn
-      </a>
+  <section class="contact-section">
+    <h2>Let's Connect</h2>
+    <p class="contact-intro">
+      Interested in collaboration or have a project in mind? Feel free to reach out!
     </p>
+    <div class="contact-links">
+      <a href="https://github.com/Asifahamed3720" class="contact-link" target="_blank">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>GitHub</span>
+      </a>
+      <a href="https://www.linkedin.com/in/asif-ahamed-709279379" class="contact-link" target="_blank">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+        <span>LinkedIn</span>
+      </a>
+    </div>
   </section>
+
+  <!-- ===== SCROLL TO TOP ===== -->
+  <button id="scroll-to-top" class="scroll-to-top" aria-label="Scroll to top">
+    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
 
   <!-- ===== LIGHTBOX ===== -->
   <div id="lightbox" class="lightbox">
