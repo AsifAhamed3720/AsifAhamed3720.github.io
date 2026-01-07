@@ -181,6 +181,29 @@
     });
   }
 
+  // Water ripple effect
+  function setupWaterRipple() {
+    document.addEventListener('click', (e) => {
+      // Create 3 concentric ripples with delays
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          const ripple = document.createElement('div');
+          ripple.className = 'water-ripple';
+          ripple.style.left = e.clientX + 'px';
+          ripple.style.top = e.clientY + 'px';
+          ripple.style.animationDelay = '0s';
+          
+          document.body.appendChild(ripple);
+          
+          // Remove ripple after animation completes
+          setTimeout(() => {
+            ripple.remove();
+          }, 1500);
+        }, i * 150); // Stagger each ripple by 150ms
+      }
+    });
+  }
+
   // Theme toggle
   function setupThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
@@ -235,6 +258,7 @@
     setupCursorGlow();
     setupFilters();
     setupThemeToggle();
+    setupWaterRipple();
   });
   window.addEventListener('resize', updateCardWidths);
 </script>
@@ -500,8 +524,8 @@
 
     <!-- ===== Web Crawler Card ===== -->
     <div class="project-wrapper" data-category="ai-ml">
-      <img src="images/Webcrawlerleft.png" class="project-image left" alt="Web crawler left view">
-      <img src="images/Webcrawlerright.png" class="project-image right" alt="Web crawler right view">
+      <img src="images/webcrawlerleft.png" class="project-image left" alt="Web crawler left view">
+      <img src="images/webcrawlerright.png" class="project-image right" alt="Web crawler right view">
       
       <div class="project-card">
         <div class="project-header">
