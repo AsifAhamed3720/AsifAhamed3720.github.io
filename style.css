@@ -929,6 +929,53 @@ h3 {
 }
 
 /* =========================
+   WATER RIPPLE EFFECT
+========================= */
+.water-ripple {
+  position: fixed;
+  border-radius: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(167, 139, 250, 0.3) 0%,
+    rgba(192, 132, 252, 0.2) 30%,
+    rgba(77, 163, 255, 0.1) 60%,
+    transparent 100%
+  );
+  transform: translate(-50%, -50%);
+  animation: ripple-expand 1s ease-out;
+  z-index: 9998;
+}
+
+[data-theme="light"] .water-ripple {
+  background: radial-gradient(
+    circle,
+    rgba(124, 58, 237, 0.2) 0%,
+    rgba(147, 51, 234, 0.15) 30%,
+    rgba(77, 163, 255, 0.08) 60%,
+    transparent 100%
+  );
+}
+
+@keyframes ripple-expand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    width: 600px;
+    height: 600px;
+    opacity: 0;
+  }
+}
+
+/* =========================
    LIGHTBOX
 ========================= */
 .lightbox {
