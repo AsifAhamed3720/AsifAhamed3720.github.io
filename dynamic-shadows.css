@@ -1,0 +1,243 @@
+/* =========================
+   DYNAMIC CURSOR-BASED SHADOWS
+========================= */
+
+/* Add CSS variables for dynamic shadows to project cards */
+.project-card {
+  /* Default shadow values - will be overridden by JavaScript */
+  --shadow-x: 0px;
+  --shadow-y: 20px;
+  --shadow-blur: 40px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.5;
+  --glow-opacity: 0.1;
+  --light-angle: 0deg;
+}
+
+/* Override the default box-shadow with dynamic shadow variables */
+.project-card {
+  box-shadow:
+    var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) 
+      rgba(0, 0, 0, var(--shadow-opacity)),
+    0 0 40px rgba(167, 139, 250, var(--glow-opacity)),
+    0 0 80px rgba(167, 139, 250, calc(var(--glow-opacity) / 2)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  
+  /* Faster transition for shadows to follow cursor smoothly */
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.15s ease-out,
+    border 0.35s ease;
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .project-card {
+  box-shadow:
+    var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) 
+      rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.3)),
+    0 0 40px rgba(124, 58, 237, calc(var(--glow-opacity) * 0.6)),
+    inset 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* Enhanced hover state with dynamic shadows */
+.project-card:hover {
+  box-shadow:
+    var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 1.5) var(--shadow-spread) 
+      rgba(0, 0, 0, calc(var(--shadow-opacity) * 1.2)),
+    0 0 60px rgba(167, 139, 250, calc(var(--glow-opacity) * 2)),
+    0 0 120px rgba(167, 139, 250, calc(var(--glow-opacity) * 1.2));
+}
+
+[data-theme="light"] .project-card:hover {
+  box-shadow:
+    var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 1.5) var(--shadow-spread) 
+      rgba(0, 0, 0, calc(var(--shadow-opacity) * 0.4)),
+    0 0 60px rgba(124, 58, 237, calc(var(--glow-opacity) * 1.5));
+}
+
+/* Add subtle light reflection on the side facing the cursor */
+.project-card::before {
+  background: radial-gradient(
+    circle at calc(50% + var(--shadow-x) * -0.3) calc(50% + var(--shadow-y) * -0.3),
+    rgba(167, 139, 250, calc(var(--glow-opacity) * 0.8)),
+    rgba(192, 132, 252, calc(var(--glow-opacity) * 0.4)),
+    transparent 60%
+  );
+}
+
+/* =========================
+   DYNAMIC SHADOWS FOR IMAGES
+========================= */
+
+/* Add CSS variables for dynamic shadows to project images */
+.project-image,
+.fyp-flower-image {
+  /* Default shadow values for images */
+  --img-shadow-x: 0px;
+  --img-shadow-y: 15px;
+  --img-shadow-blur: 30px;
+  --img-shadow-opacity: 0.4;
+  --img-glow-opacity: 0.2;
+  --img-light-angle: 0deg;
+}
+
+/* Apply dynamic shadows to regular project images */
+.project-image:not(.fyp-flower-image) {
+  filter: 
+    blur(6px) 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, var(--img-shadow-opacity))
+    )
+    drop-shadow(0 0 30px rgba(167, 139, 250, var(--img-glow-opacity)))
+    drop-shadow(0 0 60px rgba(167, 139, 250, calc(var(--img-glow-opacity) / 2)));
+  
+  transition:
+    transform 0.6s ease,
+    opacity 0.6s ease,
+    filter 0.15s ease-out,
+    visibility 0s 0.6s;
+}
+
+/* When hovering over wrapper, show images with dynamic shadows */
+.project-wrapper:not(.fyp-wrapper):hover .project-image.left,
+.project-wrapper:not(.fyp-wrapper):hover .project-image.right {
+  filter: 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, var(--img-shadow-opacity))
+    )
+    drop-shadow(0 0 40px rgba(167, 139, 250, calc(var(--img-glow-opacity) * 1.5)))
+    drop-shadow(0 0 80px rgba(167, 139, 250, var(--img-glow-opacity)));
+}
+
+/* Light mode adjustments for images */
+[data-theme="light"] .project-image:not(.fyp-flower-image) {
+  filter: 
+    blur(6px) 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, calc(var(--img-shadow-opacity) * 0.5))
+    );
+}
+
+[data-theme="light"] .project-wrapper:not(.fyp-wrapper):hover .project-image.left,
+[data-theme="light"] .project-wrapper:not(.fyp-wrapper):hover .project-image.right {
+  filter: 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, calc(var(--img-shadow-opacity) * 0.6))
+    );
+}
+
+/* Apply dynamic shadows to FYP flower images */
+.fyp-flower-image {
+  filter: 
+    blur(4px) 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, var(--img-shadow-opacity))
+    )
+    drop-shadow(0 0 25px rgba(167, 139, 250, var(--img-glow-opacity)))
+    drop-shadow(0 0 50px rgba(167, 139, 250, calc(var(--img-glow-opacity) / 2)));
+  
+  transition:
+    transform 0.6s ease-out,
+    opacity 0.5s ease,
+    filter 0.15s ease-out,
+    visibility 0s 0.5s;
+}
+
+/* FYP images when visible with dynamic shadows */
+.fyp-wrapper:hover .fyp-flower-image.left.top,
+.fyp-wrapper:hover .fyp-flower-image.left.bottom,
+.fyp-wrapper:hover .fyp-flower-image.right.top,
+.fyp-wrapper:hover .fyp-flower-image.right.bottom {
+  filter: 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, var(--img-shadow-opacity))
+    )
+    drop-shadow(0 0 35px rgba(167, 139, 250, calc(var(--img-glow-opacity) * 1.5)))
+    drop-shadow(0 0 70px rgba(167, 139, 250, var(--img-glow-opacity)));
+}
+
+/* Light mode for FYP images */
+[data-theme="light"] .fyp-flower-image {
+  filter: 
+    blur(4px) 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, calc(var(--img-shadow-opacity) * 0.5))
+    );
+}
+
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.left.top,
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.left.bottom,
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.right.top,
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.right.bottom {
+  filter: 
+    drop-shadow(
+      var(--img-shadow-x) 
+      var(--img-shadow-y) 
+      var(--img-shadow-blur) 
+      rgba(0, 0, 0, calc(var(--img-shadow-opacity) * 0.6))
+    );
+}
+
+/* Disable dynamic shadows on mobile for performance */
+@media (max-width: 1024px) {
+  .project-card {
+    box-shadow:
+      0 10px 30px var(--shadow-color),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+  }
+  
+  .project-card:hover {
+    box-shadow:
+      0 10px 30px var(--shadow-color),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+  }
+  
+  [data-theme="light"] .project-card {
+    box-shadow:
+      0 10px 30px var(--shadow-color),
+      inset 0 1px 0 rgba(0, 0, 0, 0.03) !important;
+  }
+  
+  /* Reset image filters to default on mobile */
+  .project-image:not(.fyp-flower-image) {
+    filter: blur(6px) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6)) !important;
+  }
+  
+  .fyp-flower-image {
+    filter: blur(4px) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6)) !important;
+  }
+  
+  .project-wrapper:not(.fyp-wrapper):hover .project-image.left,
+  .project-wrapper:not(.fyp-wrapper):hover .project-image.right {
+    filter: 
+      drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+      drop-shadow(0 0 30px rgba(167, 139, 250, 0.4)) !important;
+  }
+  
+  .fyp-wrapper:hover .fyp-flower-image {
+    filter: 
+      drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+      drop-shadow(0 0 30px rgba(167, 139, 250, 0.4)) !important;
+  }
+}
