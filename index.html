@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <script>
     function updateCardWidths() {
       document.querySelectorAll('.project-wrapper').forEach(wrapper => {
@@ -89,6 +89,155 @@
         card.style.setProperty('--ry', `0deg`);
         card.style.setProperty('--ty', `0px`);
       });
+    });
+  }
+
+  // Advanced scroll animations with typing and drop effects
+  function setupAdvancedScrollAnimations() {
+    // Store original text content before any modifications
+    document.querySelectorAll('h2, .about-content > p, .hero-title .gradient-text').forEach(el => {
+      if (!el.dataset.originalText) {
+        el.dataset.originalText = el.textContent.trim();
+      }
+    });
+
+    // Track active typing timeouts and state
+    const typingTimeouts = new Map();
+    const typingStates = new Map();
+
+    // Letter-by-letter typing effect
+    const typingObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Only start if not already typing and not complete
+          if (!typingStates.get(entry.target) && !entry.target.classList.contains('typing-complete')) {
+            typingStates.set(entry.target, true);
+            typeWriterEffect(entry.target);
+          }
+        } else {
+          // Don't reset hero title when scrolling (it's at the top)
+          if (entry.target.closest('.hero-title')) {
+            return;
+          }
+          
+          // Only reset if we were actually typing
+          if (typingStates.get(entry.target)) {
+            // Cancel ongoing typing animation
+            if (typingTimeouts.has(entry.target)) {
+              const timeoutIds = typingTimeouts.get(entry.target);
+              timeoutIds.forEach(id => clearTimeout(id));
+              typingTimeouts.delete(entry.target);
+            }
+            
+            // Reset state
+            typingStates.set(entry.target, false);
+            entry.target.classList.remove('typing-complete');
+            entry.target.classList.remove('typing-active');
+            entry.target.textContent = '';
+            entry.target.style.opacity = '0';
+            entry.target.style.borderRight = 'none';
+          }
+        }
+      });
+    }, {
+      threshold: 0.4,
+      rootMargin: '0px'
+    });
+
+    // Typewriter function
+    function typeWriterEffect(element) {
+      const text = element.dataset.originalText;
+      
+      // Clear any existing timeouts for this element
+      if (typingTimeouts.has(element)) {
+        const timeoutIds = typingTimeouts.get(element);
+        timeoutIds.forEach(id => clearTimeout(id));
+      }
+      typingTimeouts.set(element, []);
+      
+      element.textContent = '';
+      element.style.opacity = '1';
+      element.style.visibility = 'visible';
+      element.classList.add('typing-active');
+      
+      let index = 0;
+      // Slower speed for hero title, normal speed for h2, fast for paragraphs
+      let speed;
+      if (element.closest('.hero-title')) {
+        speed = 80; // Slower for hero title
+      } else if (element.tagName === 'H2') {
+        speed = 50;
+      } else {
+        speed = 20;
+      }
+      
+      function type() {
+        // Check if element is still visible
+        if (!typingStates.get(element)) {
+          return; // Stop typing if scrolled away
+        }
+        
+        if (index < text.length) {
+          element.textContent += text.charAt(index);
+          index++;
+          const timeoutId = setTimeout(type, speed);
+          typingTimeouts.get(element).push(timeoutId);
+        } else {
+          element.classList.add('typing-complete');
+          typingTimeouts.delete(element);
+          // Add cursor blink at the end briefly (only for non-hero elements)
+          if (!element.closest('.hero-title')) {
+            element.style.borderRight = '2px solid var(--primary-blue)';
+            setTimeout(() => {
+              element.style.borderRight = 'none';
+            }, 500);
+          }
+        }
+      }
+      
+      type();
+    }
+    
+    // Expose typeWriterEffect and typingStates globally for hero title
+    window.typeWriterEffect = typeWriterEffect;
+    window.typingStates = typingStates;
+
+    // Apply typing effect to headings, paragraphs, and hero title
+    document.querySelectorAll('h2, .about-content > p, .hero-title .gradient-text').forEach(el => {
+      el.classList.add('typing-element');
+      typingStates.set(el, false);
+      typingObserver.observe(el);
+      
+      // Don't start hero title immediately - it will start after loading screen
+    });
+
+    // Drop-in effect for skill cards - higher threshold
+    const dropObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('drop-active');
+          }, entry.target.dataset.index * 100);
+        } else {
+          entry.target.classList.remove('drop-active');
+        }
+      });
+    }, {
+      threshold: 0.5,
+      rootMargin: '0px'
+    });
+
+    // Apply drop effect to skill categories
+    document.querySelectorAll('.skill-category').forEach((card, index) => {
+      card.classList.add('drop-element');
+      card.dataset.index = index;
+      dropObserver.observe(card);
+    });
+
+    // Apply drop effect to skill tags
+    document.querySelectorAll('.skill-tag').forEach((tag, index) => {
+      tag.classList.add('drop-tag');
+      tag.style.setProperty('--tag-index', index);
     });
   }
 
@@ -206,54 +355,185 @@
 
   // Theme toggle
   function setupThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
     const html = document.documentElement;
     
-    // Check for saved theme preference or default to 'dark'
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    html.setAttribute('data-theme', currentTheme);
+    // Get current theme (already set in head)
+    const currentTheme = html.getAttribute('data-theme') || 'dark';
     updateThemeIcon(currentTheme);
     
-    themeToggle.addEventListener('click', () => {
+    // Desktop theme toggle
+    themeToggleDesktop.addEventListener('click', () => {
+      toggleTheme();
+    });
+
+    // Mobile theme toggle
+    themeToggleMobile.addEventListener('click', () => {
+      toggleTheme();
+    });
+
+    function toggleTheme() {
       const currentTheme = html.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       
       html.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       updateThemeIcon(newTheme);
-    });
+    }
   }
   
   function updateThemeIcon(theme) {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (theme === 'dark') {
-      themeToggle.innerHTML = `
-        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-      `;
-    } else {
-      themeToggle.innerHTML = `
-        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      `;
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    const iconHTML = theme === 'dark' ? `
+      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    ` : `
+      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    `;
+    
+    themeToggleDesktop.innerHTML = iconHTML;
+    themeToggleMobile.innerHTML = iconHTML;
+  }
+
+  // Loading screen
+  function setupLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const progress = document.querySelector('.loading-progress');
+    
+    let loadProgress = 0;
+    const interval = setInterval(() => {
+      loadProgress += Math.random() * 30;
+      if (loadProgress >= 100) {
+        loadProgress = 100;
+        clearInterval(interval);
+        setTimeout(() => {
+          loadingScreen.style.opacity = '0';
+          setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            document.body.classList.remove('loading');
+            // Start hero animation AFTER loading screen is done
+            startHeroAnimation();
+          }, 500);
+        }, 300);
+      }
+      progress.style.width = loadProgress + '%';
+    }, 100);
+  }
+
+  // Start hero title animation (wipe reveal from left to right)
+  function startHeroAnimation() {
+    const heroTitle = document.querySelector('.hero-title .gradient-text');
+    if (heroTitle) {
+      // Don't set textContent - the ::before pseudo-element will show it
+      // Trigger animation
+      heroTitle.classList.add('hero-reveal');
     }
   }
 
+  // Navigation scroll effect
+  function setupNavigation() {
+    const nav = document.getElementById('main-nav');
+    const navLinks = document.querySelectorAll('.nav-link:not(.cta-button)');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile menu toggle
+    mobileMenuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mobileMenu.classList.toggle('active');
+      mobileMenuToggle.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (mobileMenu.classList.contains('active') && 
+          !mobileMenu.contains(e.target) && 
+          !mobileMenuToggle.contains(e.target)) {
+        mobileMenu.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+      }
+    });
+
+    // Close mobile menu when clicking a link
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+      });
+    });
+
+    // Smooth scroll for nav links
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Smooth scroll for mobile menu links (non-CV links)
+    mobileMenuLinks.forEach(link => {
+      if (!link.getAttribute('href').includes('.pdf')) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href');
+          const targetSection = document.querySelector(targetId);
+          if (targetSection) {
+            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+    });
+
+    // Smooth scroll for hero CTAs
+    document.querySelectorAll('.cta-primary, .cta-secondary').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = btn.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  }
+
   window.addEventListener('load', () => {
+    // Always scroll to top on page load
+    window.scrollTo(0, 0);
+    
+    setupLoadingScreen();
+    setupNavigation();
     updateCardWidths();
     setupLightbox();
     setupCardTilt();
     setupScrollAnimations();
+    setupAdvancedScrollAnimations();
     setupScrollToTop();
     setupCursorGlow();
     setupFilters();
@@ -267,15 +547,115 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asif Ahamed Siddique | AI & ML Engineer</title>
+  <style>
+    /* Critical CSS to prevent flash */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+    }
+    html[data-theme="light"], html[data-theme="light"] body {
+      background: #f5f5f5;
+    }
+  </style>
   <link rel="stylesheet" href="style.css">
+  <script>
+    // Set theme BEFORE page renders to prevent flash
+    (function() {
+      let theme = localStorage.getItem('theme');
+      
+      if (!theme) {
+        // Check system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          theme = 'light';
+        } else {
+          theme = 'dark';
+        }
+      }
+      
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+    
+    // Scroll to top immediately before page renders
+    if (history.scrollRestoration) {
+      history.scrollRestoration = 'manual';
+    }
+    
+    // Force scroll to top before anything renders
+    document.addEventListener('DOMContentLoaded', function() {
+      window.scrollTo(0, 0);
+    });
+    
+    // Also on beforeunload
+    window.addEventListener('beforeunload', function() {
+      window.scrollTo(0, 0);
+    });
+    
+    // Immediate scroll
+    window.scrollTo(0, 0);
+  </script>
 </head>
-<body>
+<body class="loading">
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <span class="gradient-text">AS</span>
+      </div>
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Cursor Glow -->
   <div class="cursor-glow"></div>
 
-  <!-- Theme Toggle -->
-  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+  <!-- Navigation Header -->
+  <nav id="main-nav" class="main-nav">
+    <div class="nav-content">
+      <a href="#" class="nav-logo">
+        <span class="gradient-text">Asif Ahamed</span>
+      </a>
+      <div class="nav-links">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" class="nav-link cta-button">Download CV</a>
+      </div>
+      <div class="mobile-nav-controls">
+        <button id="theme-toggle-mobile" class="theme-toggle theme-toggle-mobile" aria-label="Toggle theme">
+          <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="#about" class="mobile-menu-link">About</a>
+      <a href="#projects" class="mobile-menu-link">Projects</a>
+      <a href="#contact" class="mobile-menu-link">Contact</a>
+      <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" class="mobile-menu-link">Download CV</a>
+    </div>
+  </nav>
+
+  <!-- Theme Toggle (Desktop Only) -->
+  <button id="theme-toggle" class="theme-toggle theme-toggle-desktop" aria-label="Toggle theme">
     <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -292,9 +672,12 @@
   <!-- ===== HERO ===== -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-badge">Available for Opportunities</div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        Available for Opportunities
+      </div>
       <h1 class="hero-title">
-        <span class="gradient-text">Asif Ahamed Siddique</span>
+        <span class="gradient-text" data-text="Asif Ahamed Siddique"></span>
       </h1>
       <p class="hero-subtitle">
         AI & ML Engineer · Applied Artificial Intelligence
@@ -303,7 +686,19 @@
         BSc (Hons) Computer Science with Artificial Intelligence<br>
         University of Nottingham Malaysia
       </p>
-
+      
+      <div class="hero-cta">
+        <a href="#projects" class="cta-primary">
+          <span>View My Work</span>
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a href="#contact" class="cta-secondary">
+          <span>Get in Touch</span>
+        </a>
+      </div>
     </div>
     <div class="hero-decoration">
       <div class="floating-element"></div>
@@ -313,7 +708,7 @@
   </section>
 
   <!-- ===== ABOUT ===== -->
-  <section class="about-section">
+  <section id="about" class="about-section">
     <h2>About Me</h2>
     <div class="about-content">
       <p>
@@ -355,7 +750,7 @@
   </section>
 
   <!-- ===== PROJECTS ===== -->
-  <section>
+  <section id="projects">
     <h2>Featured Projects</h2>
     
     <!-- Filter Buttons -->
@@ -381,6 +776,7 @@
             <p class="project-subtitle">
               Undergraduate Final Year Dissertation · Computer Vision & 3D Geometry
             </p>
+            <p class="project-date">October 2024 - April 2025</p>
           </div>
           <div class="project-badge">Computer Vision</div>
         </div>
@@ -433,6 +829,7 @@
           <div>
             <h3>Balance Buddy</h3>
             <p class="project-subtitle">Budget Management Android Application</p>
+            <p class="project-date">October 2024 - December 2024</p>
           </div>
           <div class="project-badge mobile">Mobile</div>
         </div>
@@ -482,6 +879,7 @@
           <div>
             <h3>Crowdfunding & Conservation Web Platform (SEATRU)</h3>
             <p class="project-subtitle">Full-Stack Web Application · Team Project (4 members)</p>
+            <p class="project-date">November 2023 - March 2024</p>
           </div>
           <div class="project-badge web">Web</div>
         </div>
@@ -524,14 +922,15 @@
 
     <!-- ===== Web Crawler Card ===== -->
     <div class="project-wrapper" data-category="ai-ml">
-      <img src="images/webcrawlerleft.png" class="project-image left" alt="Web crawler left view">
-      <img src="images/webcrawlerright.png" class="project-image right" alt="Web crawler right view">
+      <img src="images/Webcrawlerleft.png" class="project-image left" alt="Web crawler left view">
+      <img src="images/Webcrawlerright.png" class="project-image right" alt="Web crawler right view">
       
       <div class="project-card">
         <div class="project-header">
           <div>
             <h3>Intelligent Budgeted Web Crawler</h3>
             <p class="project-subtitle">Active Embedding-Based Adaptation · AI Systems Project</p>
+            <p class="project-date">February 2025 - April 2025</p>
           </div>
           <div class="project-badge">AI/ML</div>
         </div>
@@ -573,7 +972,7 @@
   </section>
 
   <!-- ===== CONTACT ===== -->
-  <section class="contact-section">
+  <section id="contact" class="contact-section">
     <h2>Let's Connect</h2>
     <p class="contact-intro">
       Interested in collaboration or have a project in mind? Feel free to reach out!
@@ -613,5 +1012,34 @@
     <img id="lightbox-img" class="lightbox-content" alt="">
   </div>
 
-</body>
-</html>
+  <!-- ===== FOOTER ===== -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3 class="gradient-text">Asif Ahamed Siddique</h3>
+        <p>AI & ML Engineer passionate about building intelligent systems</p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <div class="footer-links">
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>Connect</h4>
+        <div class="footer-socials">
+          <a href="mailto:asif.ahamed3720@gmail.com" aria-label="Email">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+          </a>
+          <a href="https://github.com/Asifahamed3720" target="_blank" aria-label="GitHub">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </a>
+          <a href="https://www.linkedin.com/in/asif-ahamed-709279379" target="_blank" aria-label="LinkedIn">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2
