@@ -1,554 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
-  <script>
-    function updateCardWidths() {
-      document.querySelectorAll('.project-wrapper').forEach(wrapper => {
-        const card = wrapper.querySelector('.project-card');
-        if (!card) return;
-
-        const cardWidth = card.offsetWidth;
-        wrapper.style.setProperty('--card-width', `${cardWidth}px`);
-
-        const viewportWidth = window.innerWidth;
-        const edgeGap = 48;
-        const imageWidth = 220;
-
-        // SAME LOGIC FOR ALL CARDS (FYP + regular)
-        const availableSpace =
-          (viewportWidth - cardWidth) / 2 - edgeGap - imageWidth;
-
-        if (availableSpace < 0) {
-          const maxImageWidth =
-            (viewportWidth - cardWidth) / 2 - edgeGap * 2;
-
-          const scale = Math.max(0.4, maxImageWidth / imageWidth);
-          wrapper.style.setProperty('--image-scale', scale);
-        } else {
-          wrapper.style.setProperty('--image-scale', '1');
-        }
-      });
-    }
-
-
-  // Lightbox functionality
-  function setupLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const closeBtn = document.querySelector('.lightbox-close');
-
-    // Handle both regular and FYP images
-    document.querySelectorAll('.project-image, .fyp-flower-image').forEach(img => {
-      img.addEventListener('click', (e) => {
-        e.stopPropagation();
-        lightbox.style.display = 'flex';
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
-        document.body.style.overflow = 'hidden';
-      });
-    });
-
-    function closeLightbox() {
-      lightbox.style.display = 'none';
-      document.body.style.overflow = '';
-    }
-
-    closeBtn.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) {
-        closeLightbox();
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && lightbox.style.display === 'flex') {
-        closeLightbox();
-      }
-    });
-  }
-
-  function setupCardTilt() {
-    document.querySelectorAll('.project-wrapper').forEach(wrapper => {
-      const card = wrapper.querySelector('.project-card');
-      if (!card) return;
-
-      wrapper.addEventListener('mousemove', e => {
-        const r = wrapper.getBoundingClientRect();
-        const x = e.clientX - r.left;
-        const y = e.clientY - r.top;
-
-        const px = (x / r.width) * 2 - 1;
-        const py = (y / r.height) * 2 - 1;
-
-        card.style.setProperty('--rx', `${-py * 8}deg`);
-        card.style.setProperty('--ry', `${px * 8}deg`);
-        card.style.setProperty('--ty', `-10px`);
-      });
-
-      wrapper.addEventListener('mouseleave', () => {
-        card.style.setProperty('--rx', `0deg`);
-        card.style.setProperty('--ry', `0deg`);
-        card.style.setProperty('--ty', `0px`);
-      });
-    });
-  }
-
-  // Advanced scroll animations with typing and drop effects
-  function setupAdvancedScrollAnimations() {
-    // Store original text content before any modifications
-    document.querySelectorAll('h2, .about-content > p, .hero-title .gradient-text').forEach(el => {
-      if (!el.dataset.originalText) {
-        el.dataset.originalText = el.textContent.trim();
-      }
-    });
-
-    // Track active typing timeouts and state
-    const typingTimeouts = new Map();
-    const typingStates = new Map();
-
-    // Letter-by-letter typing effect
-    const typingObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // Only start if not already typing and not complete
-          if (!typingStates.get(entry.target) && !entry.target.classList.contains('typing-complete')) {
-            typingStates.set(entry.target, true);
-            typeWriterEffect(entry.target);
-          }
-        } else {
-          // Don't reset hero title when scrolling (it's at the top)
-          if (entry.target.closest('.hero-title')) {
-            return;
-          }
-          
-          // Only reset if we were actually typing
-          if (typingStates.get(entry.target)) {
-            // Cancel ongoing typing animation
-            if (typingTimeouts.has(entry.target)) {
-              const timeoutIds = typingTimeouts.get(entry.target);
-              timeoutIds.forEach(id => clearTimeout(id));
-              typingTimeouts.delete(entry.target);
-            }
-            
-            // Reset state
-            typingStates.set(entry.target, false);
-            entry.target.classList.remove('typing-complete');
-            entry.target.classList.remove('typing-active');
-            entry.target.textContent = '';
-            entry.target.style.opacity = '0';
-            entry.target.style.borderRight = 'none';
-          }
-        }
-      });
-    }, {
-      threshold: 0.4,
-      rootMargin: '0px'
-    });
-
-    // Typewriter function
-    function typeWriterEffect(element) {
-      const text = element.dataset.originalText;
-      
-      // Clear any existing timeouts for this element
-      if (typingTimeouts.has(element)) {
-        const timeoutIds = typingTimeouts.get(element);
-        timeoutIds.forEach(id => clearTimeout(id));
-      }
-      typingTimeouts.set(element, []);
-      
-      element.textContent = '';
-      element.style.opacity = '1';
-      element.style.visibility = 'visible';
-      element.classList.add('typing-active');
-      
-      let index = 0;
-      // Slower speed for hero title, normal speed for h2, fast for paragraphs
-      let speed;
-      if (element.closest('.hero-title')) {
-        speed = 80; // Slower for hero title
-      } else if (element.tagName === 'H2') {
-        speed = 50;
-      } else {
-        speed = 20;
-      }
-      
-      function type() {
-        // Check if element is still visible
-        if (!typingStates.get(element)) {
-          return; // Stop typing if scrolled away
-        }
-        
-        if (index < text.length) {
-          element.textContent += text.charAt(index);
-          index++;
-          const timeoutId = setTimeout(type, speed);
-          typingTimeouts.get(element).push(timeoutId);
-        } else {
-          element.classList.add('typing-complete');
-          typingTimeouts.delete(element);
-          // Add cursor blink at the end briefly (only for non-hero elements)
-          if (!element.closest('.hero-title')) {
-            element.style.borderRight = '2px solid var(--primary-blue)';
-            setTimeout(() => {
-              element.style.borderRight = 'none';
-            }, 500);
-          }
-        }
-      }
-      
-      type();
-    }
-    
-    // Expose typeWriterEffect and typingStates globally for hero title
-    window.typeWriterEffect = typeWriterEffect;
-    window.typingStates = typingStates;
-
-    // Apply typing effect to headings, paragraphs, and hero title
-    document.querySelectorAll('h2, .about-content > p, .hero-title .gradient-text').forEach(el => {
-      el.classList.add('typing-element');
-      typingStates.set(el, false);
-      typingObserver.observe(el);
-      
-      // Don't start hero title immediately - it will start after loading screen
-    });
-
-    // Drop-in effect for skill cards - higher threshold
-    const dropObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('drop-active');
-          }, entry.target.dataset.index * 100);
-        } else {
-          entry.target.classList.remove('drop-active');
-        }
-      });
-    }, {
-      threshold: 0.5,
-      rootMargin: '0px'
-    });
-
-    // Apply drop effect to skill categories
-    document.querySelectorAll('.skill-category').forEach((card, index) => {
-      card.classList.add('drop-element');
-      card.dataset.index = index;
-      dropObserver.observe(card);
-    });
-
-    // Apply drop effect to skill tags
-    document.querySelectorAll('.skill-tag').forEach((tag, index) => {
-      tag.classList.add('drop-tag');
-      tag.style.setProperty('--tag-index', index);
-    });
-  }
-
-  // Intersection Observer for scroll animations
-  function setupScrollAnimations() {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('visible');
-          }, index * 150);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    });
-
-    document.querySelectorAll('.project-wrapper').forEach(wrapper => {
-      observer.observe(wrapper);
-    });
-  }
-
-  // Smooth scroll to top
-  function setupScrollToTop() {
-    const scrollBtn = document.getElementById('scroll-to-top');
-    
-    window.addEventListener('scroll', () => {
-      if (window.pageYOffset > 300) {
-        scrollBtn.classList.add('visible');
-      } else {
-        scrollBtn.classList.remove('visible');
-      }
-    });
-
-    scrollBtn.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
-  }
-
-  // Cursor glow effect
-  function setupCursorGlow() {
-    const glow = document.querySelector('.cursor-glow');
-    let mouseX = 0, mouseY = 0;
-    let glowX = 0, glowY = 0;
-    const speed = 0.15;
-
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    });
-
-    function animate() {
-      glowX += (mouseX - glowX) * speed;
-      glowY += (mouseY - glowY) * speed;
-      
-      glow.style.left = glowX + 'px';
-      glow.style.top = glowY + 'px';
-      
-      requestAnimationFrame(animate);
-    }
-    animate();
-  }
-
-  // Filter projects
-  function setupFilters() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const projects = document.querySelectorAll('.project-wrapper');
-
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const filter = btn.dataset.filter;
-        
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        projects.forEach(project => {
-          if (filter === 'all' || project.dataset.category === filter) {
-            project.style.display = 'block';
-            setTimeout(() => project.classList.add('visible'), 50);
-          } else {
-            project.classList.remove('visible');
-            setTimeout(() => project.style.display = 'none', 300);
-          }
-        });
-      });
-    });
-  }
-
-  // Water ripple effect
-  function setupWaterRipple() {
-    document.addEventListener('click', (e) => {
-      // Create 3 concentric ripples with delays
-      for (let i = 0; i < 3; i++) {
-        setTimeout(() => {
-          const ripple = document.createElement('div');
-          ripple.className = 'water-ripple';
-          ripple.style.left = e.clientX + 'px';
-          ripple.style.top = e.clientY + 'px';
-          ripple.style.animationDelay = '0s';
-          
-          document.body.appendChild(ripple);
-          
-          // Remove ripple after animation completes
-          setTimeout(() => {
-            ripple.remove();
-          }, 1500);
-        }, i * 150); // Stagger each ripple by 150ms
-      }
-    });
-  }
-
-  // Theme toggle
-  function setupThemeToggle() {
-    const themeToggleDesktop = document.getElementById('theme-toggle');
-    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-    const html = document.documentElement;
-    
-    // Get current theme (already set in head)
-    const currentTheme = html.getAttribute('data-theme') || 'dark';
-    updateThemeIcon(currentTheme);
-    
-    // Desktop theme toggle
-    themeToggleDesktop.addEventListener('click', () => {
-      toggleTheme();
-    });
-
-    // Mobile theme toggle
-    themeToggleMobile.addEventListener('click', () => {
-      toggleTheme();
-    });
-
-    function toggleTheme() {
-      const currentTheme = html.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      html.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      updateThemeIcon(newTheme);
-    }
-  }
-  
-  function updateThemeIcon(theme) {
-    const themeToggleDesktop = document.getElementById('theme-toggle');
-    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-    const iconHTML = theme === 'dark' ? `
-      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-      </svg>
-    ` : `
-      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    `;
-    
-    themeToggleDesktop.innerHTML = iconHTML;
-    themeToggleMobile.innerHTML = iconHTML;
-  }
-
-  // Loading screen
-  function setupLoadingScreen() {
-    const loadingScreen = document.getElementById('loading-screen');
-    const progress = document.querySelector('.loading-progress');
-    
-    let loadProgress = 0;
-    const interval = setInterval(() => {
-      loadProgress += Math.random() * 30;
-      if (loadProgress >= 100) {
-        loadProgress = 100;
-        clearInterval(interval);
-        setTimeout(() => {
-          loadingScreen.style.opacity = '0';
-          setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            document.body.classList.remove('loading');
-            // Start hero animation AFTER loading screen is done
-            startHeroAnimation();
-          }, 500);
-        }, 300);
-      }
-      progress.style.width = loadProgress + '%';
-    }, 100);
-  }
-
-  // Start hero title animation (wipe reveal from left to right)
-  function startHeroAnimation() {
-    const heroTitle = document.querySelector('.hero-title .gradient-text');
-    if (heroTitle) {
-      // Don't set textContent - the ::before pseudo-element will show it
-      // Trigger animation
-      heroTitle.classList.add('hero-reveal');
-    }
-  }
-
-  // Navigation scroll effect
-  function setupNavigation() {
-    const nav = document.getElementById('main-nav');
-    const navLinks = document.querySelectorAll('.nav-link:not(.cta-button)');
-    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
-    
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 100) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
-      }
-    });
-
-    // Mobile menu toggle
-    mobileMenuToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      mobileMenu.classList.toggle('active');
-      mobileMenuToggle.classList.toggle('active');
-    });
-
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (mobileMenu.classList.contains('active') && 
-          !mobileMenu.contains(e.target) && 
-          !mobileMenuToggle.contains(e.target)) {
-        mobileMenu.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-      }
-    });
-
-    // Close mobile menu when clicking a link
-    mobileMenuLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-      });
-    });
-
-    // Smooth scroll for nav links
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = link.getAttribute('href');
-        const targetSection = document.querySelector(targetId);
-        if (targetSection) {
-          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-
-    // Smooth scroll for mobile menu links (non-CV links)
-    mobileMenuLinks.forEach(link => {
-      if (!link.getAttribute('href').includes('.pdf')) {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const targetId = link.getAttribute('href');
-          const targetSection = document.querySelector(targetId);
-          if (targetSection) {
-            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        });
-      }
-    });
-
-    // Smooth scroll for hero CTAs
-    document.querySelectorAll('.cta-primary, .cta-secondary').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = btn.getAttribute('href');
-        const targetSection = document.querySelector(targetId);
-        if (targetSection) {
-          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-  }
-
-  window.addEventListener('load', () => {
-    // Always scroll to top on page load
-    window.scrollTo(0, 0);
-    
-    setupLoadingScreen();
-    setupNavigation();
-    updateCardWidths();
-    setupLightbox();
-    setupCardTilt();
-    setupScrollAnimations();
-    setupAdvancedScrollAnimations();
-    setupScrollToTop();
-    setupCursorGlow();
-    setupFilters();
-    setupThemeToggle();
-    setupWaterRipple();
-  });
-  window.addEventListener('resize', updateCardWidths);
-</script>
-
 <head>
+  <link rel="icon" type="image/png" href="images/favicon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Asif Ahamed Siddique | AI & ML Engineer</title>
+  
+  <!-- Critical CSS to prevent flash -->
   <style>
-    /* Critical CSS to prevent flash */
     html, body {
       margin: 0;
       padding: 0;
@@ -558,8 +17,11 @@
       background: #f5f5f5;
     }
   </style>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="dynamic-shadows.css">
+  
+  <!-- Main stylesheet (imports all CSS modules) -->
+  <link rel="stylesheet" href="css/main.css">
+  
+  <!-- Theme detection script - MUST run before page renders -->
   <script>
     // Set theme BEFORE page renders to prevent flash
     (function() {
@@ -597,7 +59,6 @@
   </script>
 </head>
 <body class="loading">
-  <script src="dynamic-shadows.js"></script>
 
   <!-- Loading Screen -->
   <div id="loading-screen" class="loading-screen">
@@ -622,6 +83,7 @@
       </a>
       <div class="nav-links">
         <a href="#about" class="nav-link">About</a>
+        <a href="#skills" class="nav-link">Skills</a>
         <a href="#projects" class="nav-link">Projects</a>
         <a href="#contact" class="nav-link">Contact</a>
         <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" class="nav-link cta-button">Download CV</a>
@@ -650,6 +112,7 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobile-menu">
       <a href="#about" class="mobile-menu-link">About</a>
+      <a href="#skills" class="mobile-menu-link">Skills</a>
       <a href="#projects" class="mobile-menu-link">Projects</a>
       <a href="#contact" class="mobile-menu-link">Contact</a>
       <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" class="mobile-menu-link">Download CV</a>
@@ -714,38 +177,89 @@
     <h2>About Me</h2>
     <div class="about-content">
       <p>
-        I'm an AI & ML Engineer passionate about leveraging artificial intelligence 
+        I'm an aspiring AI & ML Engineer passionate about leveraging artificial intelligence 
         to solve complex real-world problems. With expertise spanning computer vision, 
         full-stack development, and intelligent systems, I focus on building solutions 
         that make a tangible impact.
       </p>
-      <div class="skills-grid">
-        <div class="skill-category">
-          <h4>AI & Machine Learning</h4>
-          <div class="skill-tags">
-            <span class="skill-tag">PyTorch</span>
-            <span class="skill-tag">Computer Vision</span>
-            <span class="skill-tag">Deep Learning</span>
-            <span class="skill-tag">NLP</span>
-          </div>
+    </div>
+  </section>
+
+  <!-- ===== SKILLS & TECHNOLOGIES ===== -->
+  <section id="skills" class="skills-section">
+    <h2>Skills & Technologies</h2>
+    <div class="skills-container">
+      <div class="skill-category-large">
+        <div class="skill-category-header">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <h3>Languages</h3>
         </div>
-        <div class="skill-category">
-          <h4>Development</h4>
-          <div class="skill-tags">
-            <span class="skill-tag">Python</span>
-            <span class="skill-tag">React.js</span>
-            <span class="skill-tag">Kotlin</span>
-            <span class="skill-tag">Laravel</span>
-          </div>
+        <div class="skill-tags-large">
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">Java</span>
+          <span class="skill-tag">C++</span>
+          <span class="skill-tag">C</span>
+          <span class="skill-tag">Kotlin</span>
+          <span class="skill-tag">HTML</span>
+          <span class="skill-tag">CSS</span>
         </div>
-        <div class="skill-category">
-          <h4>Tools & Platforms</h4>
-          <div class="skill-tags">
-            <span class="skill-tag">Firebase</span>
-            <span class="skill-tag">Git</span>
-            <span class="skill-tag">MySQL</span>
-            <span class="skill-tag">REST APIs</span>
-          </div>
+      </div>
+
+      <div class="skill-category-large">
+        <div class="skill-category-header">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <h3>Frameworks & Libraries</h3>
+        </div>
+        <div class="skill-tags-large">
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Laravel</span>
+          <span class="skill-tag">PyTorch</span>
+          <span class="skill-tag">TensorFlow</span>
+          <span class="skill-tag">Firebase</span>
+          <span class="skill-tag">Firestore</span>
+        </div>
+      </div>
+
+      <div class="skill-category-large">
+        <div class="skill-category-header">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+          <h3>Tools & Platforms</h3>
+        </div>
+        <div class="skill-tags-large">
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">Linux</span>
+          <span class="skill-tag">VS Code</span>
+          <span class="skill-tag">MySQL</span>
+          <span class="skill-tag">Android Studio</span>
+        </div>
+      </div>
+
+      <div class="skill-category-large">
+        <div class="skill-category-header">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <h3>Specializations</h3>
+        </div>
+        <div class="skill-tags-large">
+          <span class="skill-tag">Machine Learning</span>
+          <span class="skill-tag">Web Development</span>
+          <span class="skill-tag">Natural Language Processing</span>
+          <span class="skill-tag">Computer Vision</span>
+          <span class="skill-tag">API Integration</span>
         </div>
       </div>
     </div>
@@ -1025,6 +539,7 @@
         <h4>Quick Links</h4>
         <div class="footer-links">
           <a href="#about">About</a>
+          <a href="#skills">Skills</a>
           <a href="#projects">Projects</a>
           <a href="#contact">Contact</a>
         </div>
@@ -1047,3 +562,13 @@
               <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
             </svg>
           </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript (ES6 modules) -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>

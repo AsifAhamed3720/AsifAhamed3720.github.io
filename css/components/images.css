@@ -1,0 +1,225 @@
+/* =========================
+   PROJECT IMAGES
+   Image positioning and hover effects
+========================= */
+
+/* Regular project images (NOT FYP flower images) */
+.project-image:not(.fyp-flower-image) {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  width: var(--proj-img-w);
+  height: auto;
+
+  opacity: 0;
+  filter: blur(6px) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
+  visibility: hidden;
+
+  transition:
+    transform 0.6s ease,
+    opacity 0.6s ease,
+    filter 0.6s ease,
+    visibility 0s 0.6s;
+
+  z-index: 1;
+  cursor: pointer;
+  background: transparent;
+}
+
+/* Initial positioning (hidden state) */
+.project-image.left:not(.fyp-flower-image) {
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.project-image.right:not(.fyp-flower-image) {
+  right: 50%;
+  transform: translate(50%, -50%) scale(0.95);
+}
+
+/* =========================
+   HOVER EFFECTS - STANDARD LAYOUT
+========================= */
+
+/* Regular cards hover - horizontal slide */
+.project-wrapper:not(.fyp-wrapper):hover .project-image.left {
+  transform: translate(
+    calc(
+      -50%
+      - (var(--card-width) / 2)
+      - var(--edge-gap)
+      - (var(--proj-img-w) * var(--image-scale) / 2)
+    ),
+    -50%
+  ) scale(var(--image-scale));
+  z-index: 5;
+  opacity: 1;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.4))
+          drop-shadow(0 0 60px rgba(167, 139, 250, 0.2));
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+[data-theme="light"] .project-wrapper:not(.fyp-wrapper):hover .project-image.left {
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.3));
+}
+
+.project-wrapper:not(.fyp-wrapper):hover .project-image.right {
+  transform: translate(
+    calc(
+      50%
+      + (var(--card-width) / 2)
+      + var(--edge-gap)
+      + (var(--proj-img-w) * var(--image-scale) / 2)
+    ),
+    -50%
+  ) scale(var(--image-scale));
+  z-index: 5;
+  opacity: 1;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.4))
+          drop-shadow(0 0 60px rgba(167, 139, 250, 0.2));
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+[data-theme="light"] .project-wrapper:not(.fyp-wrapper):hover .project-image.right {
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* =========================
+   FYP FLOWER EFFECT
+========================= */
+
+/* Completely separate class for FYP images */
+.fyp-flower-image {
+  /* Reset everything explicitly */
+  position: absolute;
+  left: 50%;
+  right: auto;
+  top: 50%;
+  width: var(--proj-img-w);
+  height: auto;
+  
+  /* Start from center */
+  transform: translate(-50%, -50%) scale(0.9);
+  
+  opacity: 0;
+  filter: blur(4px) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6));
+  visibility: hidden;
+  
+  /* Smooth, graceful timing */
+  transition:
+    transform 0.6s ease-out,
+    opacity 0.5s ease,
+    filter 0.5s ease,
+    visibility 0s 0.5s;
+    
+  z-index: 1;
+  cursor: pointer;
+}
+
+/* Top-left: gracefully floats up and left */
+.fyp-wrapper:hover .fyp-flower-image.left.top {
+  transform: translate(
+    calc(
+      -50%
+      - (var(--card-width) / 2)
+      - var(--edge-gap)
+      - (var(--proj-img-w) * var(--image-scale) / 2)
+    ),
+    calc(-50% - var(--flower-offset))
+  ) scale(var(--image-scale));
+  opacity: 1;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.4))
+          drop-shadow(0 0 60px rgba(167, 139, 250, 0.2));
+  visibility: visible;
+  transition-delay: 0s;
+  z-index: 5;
+}
+
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.left.top {
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* Bottom-left: gracefully floats down and left */
+.fyp-wrapper:hover .fyp-flower-image.left.bottom {
+  transform: translate(
+    calc(
+      -50%
+      - (var(--card-width) / 2)
+      - var(--edge-gap)
+      - (var(--proj-img-w) * var(--image-scale) / 2)
+    ),
+    calc(-50% + var(--flower-offset))
+  ) scale(var(--image-scale));
+  opacity: 1;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.4))
+          drop-shadow(0 0 60px rgba(167, 139, 250, 0.2));
+  visibility: visible;
+  transition-delay: 0s;
+  z-index: 5;
+}
+
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.left.bottom {
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* Top-right: gracefully floats up and right */
+.fyp-wrapper:hover .fyp-flower-image.right.top {
+  transform: translate(
+    calc(
+      -50%
+      + (var(--card-width) / 2)
+      + var(--edge-gap)
+      + (var(--proj-img-w) * var(--image-scale) / 2)
+    ),
+    calc(-50% - var(--flower-offset))
+  ) scale(var(--image-scale));
+  opacity: 1;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.4))
+          drop-shadow(0 0 60px rgba(167, 139, 250, 0.2));
+  visibility: visible;
+  transition-delay: 0s;
+  z-index: 5;
+}
+
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.right.top {
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* Bottom-right: gracefully floats down and right */
+.fyp-wrapper:hover .fyp-flower-image.right.bottom {
+  transform: translate(
+    calc(
+      -50%
+      + (var(--card-width) / 2)
+      + var(--edge-gap)
+      + (var(--proj-img-w) * var(--image-scale) / 2)
+    ),
+    calc(-50% + var(--flower-offset))
+  ) scale(var(--image-scale));
+  opacity: 1;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.4))
+          drop-shadow(0 0 60px rgba(167, 139, 250, 0.2));
+  visibility: visible;
+  transition-delay: 0s;
+  z-index: 5;
+}
+
+[data-theme="light"] .fyp-wrapper:hover .fyp-flower-image.right.bottom {
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* Mobile - hide all images */
+@media (max-width: 768px) {
+  .project-image,
+  .fyp-flower-image {
+    display: none !important;
+  }
+}

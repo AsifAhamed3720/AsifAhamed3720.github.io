@@ -1,0 +1,90 @@
+/* =========================
+   THEME TOGGLE
+========================= */
+
+/* Desktop theme toggle - fixed top right */
+.theme-toggle-desktop {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.theme-toggle-desktop:hover {
+  transform: scale(1.1) rotate(10deg);
+  border-color: var(--primary-blue);
+  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.3);
+}
+
+.theme-toggle-desktop svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-desktop:active svg {
+  transform: rotate(180deg);
+}
+
+/* Mobile theme toggle - in nav bar */
+.theme-toggle-mobile {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.theme-toggle-mobile:hover {
+  background: rgba(167, 139, 250, 0.1);
+}
+
+.theme-toggle-mobile svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 768px) {
+  .theme-toggle-desktop {
+    display: none !important;
+  }
+  
+  .theme-toggle-mobile {
+    display: flex !important;
+    position: static;
+    width: 40px;
+    height: 40px;
+    top: auto;
+    right: auto;
+  }
+}
+
+@media (min-width: 769px) {
+  .theme-toggle-mobile {
+    display: none !important;
+  }
+
+  .theme-toggle-desktop {
+    display: flex !important;
+  }
+}

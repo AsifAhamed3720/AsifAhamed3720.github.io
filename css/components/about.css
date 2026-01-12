@@ -1,0 +1,30 @@
+/* =========================
+   ABOUT SECTION
+========================= */
+.about-section {
+  padding: 60px 0;
+}
+
+.about-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-content > p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 40px;
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 40px 0;
+  }
+  
+  .about-content > p {
+    font-size: 1rem;
+  }
+}

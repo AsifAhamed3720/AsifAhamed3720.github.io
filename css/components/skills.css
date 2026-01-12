@@ -1,0 +1,123 @@
+/* =========================
+   SKILLS & TECHNOLOGIES SECTION
+========================= */
+.skills-section {
+  padding: 60px 0;
+  max-width: 1200px;
+}
+
+.skills-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.skill-category-large {
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.skill-category-large::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(167, 139, 250, 0.1),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.skill-category-large:hover::before {
+  left: 100%;
+}
+
+.skill-category-large:hover {
+  transform: translateY(-8px);
+  border-color: rgba(77, 163, 255, 0.4);
+  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.2);
+}
+
+.skill-category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.skill-category-header svg {
+  width: 24px;
+  height: 24px;
+  color: var(--primary-blue);
+  flex-shrink: 0;
+}
+
+.skill-category-header h3 {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.skill-tags-large {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-tags-large .skill-tag {
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.skill-tag {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  background: rgba(167, 139, 250, 0.2);
+  border-color: rgba(167, 139, 250, 0.4);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .skills-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .skill-category-large {
+    padding: 20px;
+  }
+  
+  .skill-category-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .skill-tags-large .skill-tag {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+}

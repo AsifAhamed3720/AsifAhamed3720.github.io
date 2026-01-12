@@ -1,0 +1,39 @@
+# Backup files
+*-old-backup.*
+*-backup.*
+
+# Documentation files (keep only README.md)
+BEFORE_AFTER.md
+COMPLETE_REFACTORING_VERIFICATION.md
+FINAL_MASTER_CHECKLIST.md
+FINAL_VERIFICATION.md
+IMPLEMENTATION_SUMMARY.md
+INTEGRATION_GUIDE.md
+MIGRATION_GUIDE.md
+MISSING_FEATURES_REPORT.md
+README_MODULAR.md
+README_QUICK_START.md
+REFACTORING_VERIFICATION.md
+START_HERE.md
+STRUCTURE_DIAGRAM.md
+TESTING_CHECKLIST.md
+TESTING_GUIDE.md
+
+# Test files
+test-suite.html
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*

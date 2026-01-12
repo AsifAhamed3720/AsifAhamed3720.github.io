@@ -1,0 +1,181 @@
+/* =========================
+   RESPONSIVE DESIGN
+   Mobile and tablet breakpoints with optimizations
+========================= */
+
+/* =========================
+   TABLET (768px and below)
+========================= */
+@media (max-width: 768px) {
+  body {
+    margin: 30px auto;
+    padding: 0 16px;
+    /* Increase top padding on mobile to prevent overlap */
+    padding-top: 120px;
+  }
+
+  section {
+    margin-bottom: 60px;
+  }
+
+  h1 {
+    font-size: 2.1rem;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+  
+  h2::after {
+    width: 60px;
+    height: 3px;
+  }
+
+  /* Hide images on tablet */
+  .project-image,
+  .fyp-flower-image {
+    display: none;
+  }
+
+  /* Lightbox adjustments */
+  .lightbox-close {
+    top: 20px;
+    right: 20px;
+    font-size: 40px;
+  }
+  
+  .lightbox-content {
+    max-width: 95%;
+    max-height: 95%;
+  }
+}
+
+/* =========================
+   MOBILE (480px and below)
+========================= */
+@media (max-width: 480px) {
+  body {
+    padding: 0 12px;
+    /* Even more top padding for very small screens */
+    padding-top: 100px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+  }
+}
+
+/* =========================
+   MOBILE/TABLET OPTIMIZATIONS (1024px and below)
+========================= */
+@media (max-width: 1024px) {
+  /* Disable most animations but keep initial page load ones */
+  .skill-category-large,
+  .skill-tag,
+  .tech-tag,
+  .filter-btn,
+  .contact-link,
+  .project-card,
+  .status-badge {
+    transition: none !important;
+  }
+  
+  /* Keep initial fade in and slide up animations */
+  body {
+    animation: fadeIn 1s ease-in;
+  }
+  
+  .hero-content {
+    animation: slideUp 1s ease both;
+  }
+  
+  .project-wrapper.visible {
+    animation: slideUp 0.8s ease both;
+  }
+  
+  /* Keep gradient text animation */
+  .gradient-text {
+    animation: gradientShift 3s ease infinite;
+  }
+  
+  /* Disable pulse animation */
+  .status-badge {
+    animation: none !important;
+  }
+  
+  /* Remove 3D transforms */
+  .project-card {
+    transform: none !important;
+    transform-style: flat !important;
+    perspective: none !important;
+  }
+  
+  .project-wrapper {
+    perspective: none !important;
+  }
+  
+  /* Hide all project images on mobile */
+  .project-image,
+  .fyp-flower-image {
+    display: none !important;
+  }
+  
+  /* Disable hover effects */
+  .skill-category-large:hover,
+  .skill-tag:hover,
+  .tech-tag:hover,
+  .filter-btn:hover,
+  .contact-link:hover {
+    transform: none !important;
+  }
+  
+  /* Keep floating elements but make them smaller */
+  .floating-element {
+    opacity: 0.5;
+  }
+}
+
+/* =========================
+   TOUCH DEVICE OPTIMIZATIONS
+========================= */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets */
+  .filter-btn,
+  .contact-link,
+  .tech-tag,
+  .skill-tag {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+  
+  /* Remove all hover effects */
+  .project-card:hover,
+  .skill-category-large:hover,
+  .skill-tag:hover,
+  .tech-tag:hover,
+  .filter-btn:hover,
+  .contact-link:hover {
+    transform: none !important;
+    box-shadow: initial !important;
+  }
+  
+  /* Simplify card appearance */
+  .project-card {
+    transform: none !important;
+    will-change: auto !important;
+  }
+  
+  .project-card::before {
+    display: none;
+  }
+}

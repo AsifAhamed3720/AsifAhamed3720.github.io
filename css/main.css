@@ -1,0 +1,31 @@
+/**
+ * Main Stylesheet
+ * Imports all CSS modules in proper order
+ */
+
+/* Base styles - must load first */
+@import './base.css';
+
+/* Animations - load early for use in components */
+@import './animations.css';
+
+/* Component styles */
+@import './components/loading.css';
+@import './components/navigation.css';
+@import './components/theme-toggle.css';
+@import './components/cursor-glow.css';
+@import './components/hero.css';
+@import './components/about.css';
+@import './components/skills.css';
+@import './components/filters.css';
+@import './components/cards.css';
+@import './components/images.css';
+@import './components/contact.css';
+@import './components/scroll-to-top.css';
+@import './components/footer.css';
+@import './components/lightbox.css';
+@import './components/dynamic-shadows.css';
+@import './components/water-ripple.css';
+
+/* Responsive overrides - must load last */
+@import './responsive.css';
