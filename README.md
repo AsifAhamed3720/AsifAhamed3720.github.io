@@ -270,8 +270,6 @@ This is a personal portfolio, but suggestions are welcome! If you find a bug or 
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
-
 Feel free to use this code as inspiration for your own portfolio, but please don't copy it entirely. Make it your own! 🎨
 
 ---
@@ -307,6 +305,5 @@ Feel free to use this code as inspiration for your own portfolio, but please don
 
 **Built with ❤️ by Asif Ahamed Siddique**
 
-⭐ Star this repo if you found it helpful!
 
 </div>
