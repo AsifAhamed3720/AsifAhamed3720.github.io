@@ -18,6 +18,7 @@ import scrollToTop from './modules/scroll-to-top.js';
 import cursorGlow from './modules/cursor-glow.js';
 import projectFilters from './modules/project-filters.js';
 import waterRipple from './modules/water-ripple.js';
+import contactForm from './modules/contact-form.js';
 
 /**
  * Initialize all application modules
@@ -69,6 +70,9 @@ function initializeApp() {
     console.log('✅ Water Ripple initialized');
   }
 
+  contactForm.init();
+  console.log('✅ Contact Form initialized');
+
   console.log('✨ Portfolio ready!');
 }
 
@@ -104,5 +108,6 @@ export {
   scrollToTop,
   cursorGlow,
   projectFilters,
-  waterRipple
+  waterRipple,
+  contactForm
 };

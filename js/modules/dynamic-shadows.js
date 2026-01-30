@@ -29,6 +29,12 @@ class DynamicShadows {
 
     this.cards = Array.from(document.querySelectorAll('.project-card'));
     this.images = Array.from(document.querySelectorAll('.project-image, .fyp-flower-image'));
+    
+    // Add contact form to dynamic shadows
+    const contactForm = document.querySelector('.contact-form');
+    if (contactForm) {
+      this.cards.push(contactForm);
+    }
 
     if (this.cards.length === 0 && this.images.length === 0) {
       console.warn('DynamicShadows: No elements found');

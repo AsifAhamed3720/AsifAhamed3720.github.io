@@ -26,6 +26,7 @@
 @import './components/lightbox.css';
 @import './components/dynamic-shadows.css';
 @import './components/water-ripple.css';
+@import './components/contact-form.css';
 
 /* Responsive overrides - must load last */
 @import './responsive.css';
