@@ -19,6 +19,8 @@ import cursorGlow from './modules/cursor-glow.js';
 import projectFilters from './modules/project-filters.js';
 import waterRipple from './modules/water-ripple.js';
 import contactForm from './modules/contact-form.js';
+import starfield from './modules/starfield.js';
+import customCursor from './modules/custom-cursor.js';
 
 /**
  * Initialize all application modules
@@ -73,6 +75,14 @@ function initializeApp() {
   contactForm.init();
   console.log('✅ Contact Form initialized');
 
+  if (FEATURES.starfield) {
+    starfield.init();
+  }
+
+  if (FEATURES.customCursor) {
+    customCursor.init();
+  }
+
   console.log('✨ Portfolio ready!');
 }
 
@@ -109,5 +119,7 @@ export {
   cursorGlow,
   projectFilters,
   waterRipple,
-  contactForm
+  contactForm,
+  starfield,
+  customCursor
 };

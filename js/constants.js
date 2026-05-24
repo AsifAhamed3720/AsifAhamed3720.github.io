@@ -61,7 +61,9 @@ export const FEATURES = {
   lightbox: true,
   imageHoverEffects: true,
   cursorGlow: true,
-  waterRipple: true
+  waterRipple: true,
+  starfield: true,
+  customCursor: true
 };
 
 // Animation timings (in milliseconds)
