@@ -28,6 +28,7 @@ const CONFIG = {
   minAlpha : 0.24,
   maxAlpha : 1,
   lineDistSq : 140 * 140,   // squared 2D screen distance for connection lines
+  maxLineLinksPerStar: 5,    // cap link checks to avoid O(n²) spikes
 
   colorDark  : '167, 139, 250',
   colorLight : '124, 58, 237',
@@ -243,9 +244,10 @@ class Starfield {
 
     const norm = s => Math.min(1, Math.max(0, (s.sc - scMin) / (scMax - scMin)));
 
-    // ── Connection lines ─────────────────────────────────────────────────────
+    // ── Connection lines (capped per star to avoid quadratic spikes) ─────────
     for (let i = 0; i < visible.length; i++) {
       const a = visible[i];
+      let links = 0;
       for (let j = i + 1; j < visible.length; j++) {
         const b  = visible[j];
         const dx = a.sx - b.sx;
@@ -253,6 +255,7 @@ class Starfield {
         if (dx * dx + dy * dy > CONFIG.lineDistSq) continue;
 
         const d        = Math.sqrt(dx * dx + dy * dy);
+        links++;
         const depthFac = (norm(a) + norm(b)) * 0.5;
         const lineAlpha = (1 - d / 160) * depthFac * 0.34;
         ctx.strokeStyle = `rgba(${color}, ${lineAlpha})`;
@@ -261,6 +264,8 @@ class Starfield {
         ctx.moveTo(a.sx, a.sy);
         ctx.lineTo(b.sx, b.sy);
         ctx.stroke();
+
+        if (links >= CONFIG.maxLineLinksPerStar) break;
       }
     }
 

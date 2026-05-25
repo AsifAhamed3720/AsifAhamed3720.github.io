@@ -10,6 +10,7 @@ class CardTilt {
   constructor() {
     this.wrappers = [];
     this.initialized = false;
+    this.framePending = new WeakMap();
   }
 
   /**
@@ -46,7 +47,7 @@ class CardTilt {
       // Mouse move handler
       wrapper.addEventListener('mousemove', (e) => {
         this.handleMouseMove(wrapper, card, e);
-      });
+      }, { passive: true });
 
       // Mouse leave handler
       wrapper.addEventListener('mouseleave', () => {
@@ -62,23 +63,30 @@ class CardTilt {
    * @param {MouseEvent} e - Mouse event
    */
   handleMouseMove(wrapper, card, e) {
-    const rect = wrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    if (this.framePending.get(wrapper)) return;
 
-    // Calculate normalized position (-1 to 1)
-    const px = (x / rect.width) * 2 - 1;
-    const py = (y / rect.height) * 2 - 1;
+    this.framePending.set(wrapper, true);
+    requestAnimationFrame(() => {
+      this.framePending.set(wrapper, false);
 
-    // Calculate rotation angles
-    const { maxRotationX, maxRotationY, translateY } = TILT_CONFIG;
-    const rotateX = -py * maxRotationX;
-    const rotateY = px * maxRotationY;
+      const rect = wrapper.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-    // Apply transforms
-    card.style.setProperty('--rx', `${rotateX}deg`);
-    card.style.setProperty('--ry', `${rotateY}deg`);
-    card.style.setProperty('--ty', `${translateY}px`);
+      // Calculate normalized position (-1 to 1)
+      const px = (x / rect.width) * 2 - 1;
+      const py = (y / rect.height) * 2 - 1;
+
+      // Calculate rotation angles
+      const { maxRotationX, maxRotationY, translateY } = TILT_CONFIG;
+      const rotateX = -py * maxRotationX;
+      const rotateY = px * maxRotationY;
+
+      // Apply transforms
+      card.style.setProperty('--rx', `${rotateX}deg`);
+      card.style.setProperty('--ry', `${rotateY}deg`);
+      card.style.setProperty('--ty', `${translateY}px`);
+    });
   }
 
   /**

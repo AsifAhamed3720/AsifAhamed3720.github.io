@@ -13,6 +13,7 @@ class DynamicShadows {
     this.cards = [];
     this.images = [];
     this.initialized = false;
+    this.rafScheduled = false;
   }
 
   /**
@@ -55,11 +56,24 @@ class DynamicShadows {
     document.addEventListener('mousemove', (e) => {
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
-      this.updateAll();
-    });
+      this.scheduleUpdate();
+    }, { passive: true });
 
     // Update on window resize
-    window.addEventListener('resize', () => this.updateAll());
+    window.addEventListener('resize', () => this.scheduleUpdate());
+  }
+
+
+  /**
+   * Batch visual updates to one frame
+   */
+  scheduleUpdate() {
+    if (this.rafScheduled) return;
+    this.rafScheduled = true;
+    requestAnimationFrame(() => {
+      this.rafScheduled = false;
+      this.updateAll();
+    });
   }
 
   /**
