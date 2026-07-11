@@ -20,6 +20,8 @@
 @import './components/filters.css';
 @import './components/cards.css';
 @import './components/images.css';
+@import './components/helix.css';
+@import './components/mesh-viewer.css';
 @import './components/contact.css';
 @import './components/scroll-to-top.css';
 @import './components/footer.css';
@@ -27,7 +29,6 @@
 @import './components/dynamic-shadows.css';
 @import './components/water-ripple.css';
 @import './components/starfield.css';
-@import './components/custom-cursor.css';
 @import './components/contact-form.css';
 
 /* Responsive overrides - must load last */

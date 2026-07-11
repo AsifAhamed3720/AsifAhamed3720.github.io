@@ -31,6 +31,21 @@ const CONFIG = {
 
   colorDark  : '167, 139, 250',
   colorLight : '124, 58, 237',
+
+  // ── Helix column (projects section staircase anchor) ──
+  // Driven by js/modules/helix-projects.js via helixMorphTarget/helixSpinPhase.
+  helix : {
+    strandCount : 180,     // stars forming the two spiral rails
+    coreCount   : 90,      // stars filling the inside of the column
+    dustCount   : 90,      // stars orbiting the column for atmosphere
+    radius      : 125,     // rail radius in star-space
+    height      : 1500,    // column vertical extent in star-space
+    turns       : 3.5,     // full turns over that height
+    stepEvery   : 5,       // a tread spoke every N rail-star pairs
+    morphEase   : 0.05,    // how slowly stars gather / release
+    colorsDark  : { strandA: '167, 139, 250', strandB: '96, 165, 250', core: '224, 214, 255' },
+    colorsLight : { strandA: '124, 58, 237',  strandB: '37, 99, 235',  core: '109, 40, 217' },
+  },
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -52,6 +67,14 @@ class Starfield {
     this.mouseX  = -99999;
     this.mouseY  = -99999;
     this.isLight = false;
+
+    // Helix column state — targets are written by helix-projects.js,
+    // the morph itself is eased here so stars gather/release slowly.
+    this.helixMorphTarget = 0;   // 0 = free field, 1 = full column
+    this.helixMorph       = 0;
+    this.helixSpinPhase   = 0;   // column rotation synced to card progress
+    this.idleSpin         = 0;   // slow constant turn so it never sits still
+    this.strandLists      = [[], []];  // rail stars in order, per strand
 
     this.rafId = null;
     this.initialized = false;
@@ -108,10 +131,12 @@ class Starfield {
    * no drift or floating-point accumulation.
    */
   _spawnStars() {
-    const { count, spread } = CONFIG;
+    const { count, spread, helix } = CONFIG;
     this.stars = [];
+    this.strandLists = [[], []];
+
     for (let i = 0; i < count; i++) {
-      this.stars.push({
+      const s = {
         ox: (Math.random() - 0.5) * spread * 2,
         oy: (Math.random() - 0.5) * spread * 2,
         oz: (Math.random() - 0.5) * spread * 2,
@@ -124,7 +149,53 @@ class Starfield {
         // tiny per-star twinkle phase
         twinkle     : Math.random() * Math.PI * 2,
         twinkleSpeed: 0.008 + Math.random() * 0.012,
-      });
+
+        // helix column role (see CONFIG.helix)
+        role     : 'bg',
+        e        : 0,                 // this star's current morph amount
+        stagger  : Math.random(),     // stars gather progressively
+        roleColor: null,              // palette key, resolved per theme
+        sizeMul  : 1,
+        alphaMul : 1,
+        isStep   : false,
+      };
+
+      if (i < helix.strandCount) {
+        // spiral rail star — two intertwined strands
+        const strand = i % 2;
+        const pair = Math.floor(i / 2);
+        const t = pair / (helix.strandCount / 2 - 1);
+        s.role  = 'strand';
+        s.hAng  = t * helix.turns * Math.PI * 2
+                + strand * Math.PI
+                + (Math.random() - 0.5) * 0.08;
+        s.hY    = (t - 0.5) * helix.height;
+        s.hR    = helix.radius + (Math.random() - 0.5) * 14;
+        s.roleColor = strand === 0 ? 'strandA' : 'strandB';
+        s.sizeMul = 1.15;
+        s.isStep = (pair % helix.stepEvery === 2);  // tread spoke anchor
+        this.strandLists[strand].push(s);
+      } else if (i < helix.strandCount + helix.coreCount) {
+        // interior star — fills the column volume, denser near the axis
+        const ct = (i - helix.strandCount) / (helix.coreCount - 1);
+        s.role  = 'core';
+        s.hAng  = Math.random() * Math.PI * 2;
+        s.hY    = (ct - 0.5) * helix.height * 1.04;
+        s.hR    = Math.pow(Math.random(), 1.6) * helix.radius * 0.85;
+        // inner stars turn slower than the rails, like a solid rotating body
+        s.spinF = 0.25 + 0.6 * (s.hR / (helix.radius * 0.85));
+        s.roleColor = Math.random() < 0.4 ? 'core' : 'strandA';
+        s.sizeMul = 0.75;
+      } else if (i < helix.strandCount + helix.coreCount + helix.dustCount) {
+        // orbiting dust — atmosphere around the column
+        s.role  = 'dust';
+        s.hAng  = Math.random() * Math.PI * 2;
+        s.hY    = (Math.random() - 0.5) * helix.height * 1.15;
+        s.hR    = 160 + Math.sqrt(Math.random()) * 150;
+        s.sizeMul = 0.8;
+      }
+
+      this.stars.push(s);
     }
   }
 
@@ -179,6 +250,16 @@ class Starfield {
     const cosY = Math.cos(finalRotY),  sinY = Math.sin(finalRotY);
     const { focal } = CONFIG;
 
+    // ── Helix column morph ───────────────────────────────────────────────────
+    this.helixMorph += (this.helixMorphTarget - this.helixMorph) * CONFIG.helix.morphEase;
+    if (Math.abs(this.helixMorphTarget - this.helixMorph) < 0.001) {
+      this.helixMorph = this.helixMorphTarget;
+    }
+    this.idleSpin += 0.0012;
+    const spin = this.helixSpinPhase + this.idleSpin;
+    const morph = this.helixMorph;
+    const smooth = t => t * t * (3 - 2 * t);
+
     // ── Project every star into screen space ─────────────────────────────────
     this.stars.forEach(s => {
       // Rotate around X axis (cursor lean)
@@ -189,16 +270,54 @@ class Starfield {
       const x2 =  s.ox * cosY + z1 * sinY;
       const z2 = -s.ox * sinY + z1 * cosY;
 
+      // Blend the star's home toward its slot in the helix column.
+      // e is staggered per star so the structure assembles progressively.
+      const e = morph > 0 || s.e > 0
+        ? smooth(Math.min(1, Math.max(0, (morph - s.stagger * 0.3) / 0.7)))
+        : 0;
+      s.e = e;
+
+      let x3 = x2, y3 = y1, z3 = z2;
+      if (e > 0) {
+        let a;
+        if (s.role === 'strand') {
+          a = s.hAng + spin;
+          x3 = x2 + (Math.sin(a) * s.hR - x2) * e;
+          y3 = y1 + (s.hY - y1) * e;
+          z3 = z2 + (Math.cos(a) * s.hR - z2) * e;
+          s.alphaMul = 1 + e * 0.3;
+        } else if (s.role === 'core') {
+          a = s.hAng + spin * s.spinF;   // inner stars turn slower
+          x3 = x2 + (Math.sin(a) * s.hR - x2) * e;
+          y3 = y1 + (s.hY - y1) * e;
+          z3 = z2 + (Math.cos(a) * s.hR - z2) * e;
+          s.alphaMul = 1 + e * 0.15;
+        } else if (s.role === 'dust') {
+          a = s.hAng + spin * 0.45;      // slower orbit = parallax
+          x3 = x2 + (Math.sin(a) * s.hR - x2) * e;
+          y3 = y1 + (s.hY - y1) * e;
+          z3 = z2 + (Math.cos(a) * s.hR - z2) * e;
+          s.alphaMul = 1 - e * 0.4;
+        } else {
+          // background stars drift outward and dim, clearing the stage
+          x3 = x2 * (1 + e * 0.9);
+          y3 = y1 * (1 + e * 0.5);
+          s.alphaMul = 1 - e * 0.7;
+        }
+      } else {
+        s.alphaMul = 1;
+      }
+
       // Perspective — skip stars behind the camera
-      const zOff = focal + z2;
+      const zOff = focal + z3;
       if (zOff <= 0) { s.sc = 0; return; }
 
       const sc = focal / zOff;
       s.sc = sc;
 
       // Apply repel velocity on top of the projected position
-      s.sx = x2 * sc + this.W / 2 + s.vx;
-      s.sy = y1 * sc + this.H / 2 + s.vy;
+      s.sx = x3 * sc + this.W / 2 + s.vx;
+      s.sy = y3 * sc + this.H / 2 + s.vy;
 
       // Twinkle
       s.twinkle += s.twinkleSpeed;
@@ -243,6 +362,47 @@ class Starfield {
 
     const norm = s => Math.min(1, Math.max(0, (s.sc - scMin) / (scMax - scMin)));
 
+    // Per-theme palette for the helix column structure
+    const pal = this.isLight ? CONFIG.helix.colorsLight : CONFIG.helix.colorsDark;
+    const starColor = s => (s.roleColor ? pal[s.roleColor] : color);
+
+    // ── Helix structure: rails and tread spokes ──────────────────────────────
+    if (this.helixMorph > 0.02) {
+      // rails — continuous lines along each strand
+      for (let st = 0; st < 2; st++) {
+        const list = this.strandLists[st];
+        for (let r = 0; r < list.length - 1; r++) {
+          const ra = list[r], rb = list[r + 1];
+          if (ra.sc <= 0 || rb.sc <= 0) continue;
+          const eMin = Math.min(ra.e, rb.e);
+          if (eMin < 0.05) continue;
+          const depth = (norm(ra) + norm(rb)) * 0.5;
+          ctx.strokeStyle = `rgba(${starColor(ra)}, ${eMin * (0.18 + depth * 0.35)})`;
+          ctx.lineWidth = 0.6 + depth * 0.9;
+          ctx.beginPath();
+          ctx.moveTo(ra.sx, ra.sy);
+          ctx.lineTo(rb.sx, rb.sy);
+          ctx.stroke();
+        }
+      }
+
+      // treads — spokes from the center axis out to marked rail stars
+      for (let q = 0; q < CONFIG.helix.strandCount; q++) {
+        const sp = this.stars[q];
+        if (!sp.isStep || sp.sc <= 0 || sp.e < 0.1) continue;
+        const depth = norm(sp);
+        const grad = ctx.createLinearGradient(W / 2, sp.sy, sp.sx, sp.sy);
+        grad.addColorStop(0, `rgba(${pal.core}, ${sp.e * 0.05})`);
+        grad.addColorStop(1, `rgba(${starColor(sp)}, ${sp.e * (0.12 + depth * 0.3)})`);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 0.8 + depth * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(W / 2, sp.sy);
+        ctx.lineTo(sp.sx, sp.sy);
+        ctx.stroke();
+      }
+    }
+
     // ── Connection lines ─────────────────────────────────────────────────────
     for (let i = 0; i < visible.length; i++) {
       const a = visible[i];
@@ -254,7 +414,9 @@ class Starfield {
 
         const d        = Math.sqrt(dx * dx + dy * dy);
         const depthFac = (norm(a) + norm(b)) * 0.5;
-        const lineAlpha = (1 - d / 160) * depthFac * 0.34;
+        const lineAlpha = (1 - d / 160) * depthFac * 0.34 *
+                          Math.min(a.alphaMul, b.alphaMul);
+        if (lineAlpha <= 0.01) continue;
         ctx.strokeStyle = `rgba(${color}, ${lineAlpha})`;
         ctx.lineWidth   = 0.5 + depthFac * 0.4;
         ctx.beginPath();
@@ -267,12 +429,14 @@ class Starfield {
     // ── Stars ────────────────────────────────────────────────────────────────
     visible.forEach(s => {
       const t = norm(s);
+      const col = starColor(s);
 
       // Twinkle modulates alpha slightly
       const twinkMod = 0.85 + 0.15 * Math.sin(s.twinkle);
 
-      const alpha  = (CONFIG.minAlpha + t * (CONFIG.maxAlpha - CONFIG.minAlpha)) * twinkMod;
-      const radius = CONFIG.minSize  + t * (CONFIG.maxSize  - CONFIG.minSize);
+      const alpha  = (CONFIG.minAlpha + t * (CONFIG.maxAlpha - CONFIG.minAlpha)) * twinkMod * s.alphaMul;
+      if (alpha <= 0.01) return;
+      const radius = (CONFIG.minSize + t * (CONFIG.maxSize - CONFIG.minSize)) * s.sizeMul;
 
       // Cursor proximity glow
       const mdx   = s.sx - this.mouseX;
@@ -286,18 +450,26 @@ class Starfield {
       // Glow halo near cursor
       if (prox > 0.05) {
         const grd = ctx.createRadialGradient(s.sx, s.sy, 0, s.sx, s.sy, finalRadius * 7);
-        grd.addColorStop(0, `rgba(${color}, ${finalAlpha * prox * 0.45})`);
-        grd.addColorStop(1, `rgba(${color}, 0)`);
+        grd.addColorStop(0, `rgba(${col}, ${finalAlpha * prox * 0.45})`);
+        grd.addColorStop(1, `rgba(${col}, 0)`);
         ctx.beginPath();
         ctx.arc(s.sx, s.sy, finalRadius * 7, 0, Math.PI * 2);
         ctx.fillStyle = grd;
         ctx.fill();
       }
 
+      // Soft halo on the column structure stars so the helix glows
+      if ((s.role === 'strand' || s.role === 'core') && s.e > 0.2) {
+        ctx.beginPath();
+        ctx.arc(s.sx, s.sy, finalRadius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${col}, ${finalAlpha * 0.10 * s.e})`;
+        ctx.fill();
+      }
+
       // Core dot — near stars get a tiny inner highlight
       ctx.beginPath();
       ctx.arc(s.sx, s.sy, finalRadius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color}, ${finalAlpha})`;
+      ctx.fillStyle = `rgba(${col}, ${finalAlpha})`;
       ctx.fill();
 
       if (t > 0.7) {

@@ -1,0 +1,112 @@
+/* =========================
+   HELIX PROJECT SHOWCASE
+   Spiral-staircase scroll choreography for the project cards.
+   Every rule is scoped under .helix-on, which is added by
+   js/modules/helix-projects.js on desktop only — without that
+   class the classic stacked layout is completely untouched.
+========================= */
+
+.helix-scroll {
+  position: relative;
+}
+
+.helix-axis-glow {
+  display: none;
+}
+
+.helix-on .helix-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* full-bleed so the card orbit isn't clipped by the section max-width */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  perspective: 1400px;
+  perspective-origin: 50% 45%;
+}
+
+/* soft glow grounding the starfield column at the stage center */
+.helix-on .helix-axis-glow {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  bottom: 8%;
+  width: 70px;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba(167, 139, 250, 0.07) 20%,
+    rgba(96, 165, 250, 0.07) 80%,
+    transparent);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+[data-theme="light"] .helix-on .helix-axis-glow {
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba(124, 58, 237, 0.06) 20%,
+    rgba(37, 99, 235, 0.06) 80%,
+    transparent);
+}
+
+/* wrappers become free-floating steps on the staircase;
+   JS drives transform/visibility/z-index every frame */
+.helix-on .project-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+  opacity: 1;          /* JS fades the card itself instead */
+  transform: none;
+  transition: none;    /* motion is per-frame, not transition-driven */
+  visibility: hidden;  /* revealed by JS when on the path */
+  will-change: transform;
+}
+
+/* exact vertical centering in the stage */
+.helix-on .project-card {
+  margin-bottom: 0;
+}
+
+/* Hover images keep their natural size in helix mode — when space is
+   tight the whole wrapper is scaled down uniformly by helix-projects.js,
+   so card and images shrink together instead of the images alone.
+   !important beats the inline --image-scale set by card-manager.js. */
+.helix-on .project-wrapper {
+  --image-scale: 1 !important;
+}
+
+/* progress dots (created by helix-projects.js) */
+.helix-dots {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 300;
+}
+
+.helix-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="light"] .helix-dots span {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.helix-dots span.active {
+  background: var(--primary-blue);
+  transform: scale(1.4);
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.8);
+}

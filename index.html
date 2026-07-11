@@ -20,6 +20,17 @@
   
   <!-- Main stylesheet (imports all CSS modules) -->
   <link rel="stylesheet" href="css/main.css">
+
+  <!-- Import map for the lazy-loaded 3D mesh viewer (three.js from CDN;
+       only fetched when the projects section approaches the viewport) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
   
   <!-- Theme detection script - MUST run before page renders -->
   <script>
@@ -274,6 +285,13 @@
       <button class="filter-btn" data-filter="ai-ml">AI/ML</button>
     </div>
 
+    <!-- Helix showcase: on desktop the cards spiral around the starfield
+         column (js/modules/helix-projects.js); on mobile/reduced-motion
+         these wrappers are inert and the classic stacked layout applies -->
+    <div class="helix-scroll" id="helix-scroll">
+      <div class="helix-stage">
+        <div class="helix-axis-glow" aria-hidden="true"></div>
+
     <!-- ===== FYP CARD ===== -->
     <div class="project-wrapper fyp-wrapper" data-category="compvision">
       <img src="images/FYPtopleft.png" class="fyp-flower-image left top" alt="FYP top left view">
@@ -300,7 +318,12 @@
           strategies influence reconstruction quality using Screened Poisson
           Surface Reconstruction.
         </p>
-  
+
+        <!-- Interactive 3D viewer (js/modules/mesh-viewer.js) -->
+        <div class="mesh-viewer" id="fyp-mesh-viewer" aria-label="Interactive 3D vessel reconstruction">
+          <div class="mesh-viewer-caption">Loading 3D viewer…</div>
+        </div>
+
         <div class="project-highlights">
           <div class="highlight-item">
             <span class="highlight-icon">✓</span>
@@ -481,6 +504,9 @@
         </div>
       </div>
     </div>
+
+      </div><!-- /.helix-stage -->
+    </div><!-- /.helix-scroll -->
   </section>
 
   <!-- ===== CONTACT ===== -->

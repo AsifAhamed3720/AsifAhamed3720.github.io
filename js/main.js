@@ -20,7 +20,8 @@ import projectFilters from './modules/project-filters.js';
 import waterRipple from './modules/water-ripple.js';
 import contactForm from './modules/contact-form.js';
 import starfield from './modules/starfield.js';
-import customCursor from './modules/custom-cursor.js';
+import helixProjects from './modules/helix-projects.js';
+import meshViewer from './modules/mesh-viewer.js';
 
 /**
  * Initialize all application modules
@@ -67,6 +68,12 @@ function initializeApp() {
   projectFilters.init();
   console.log('✅ Project Filters initialized');
 
+  helixProjects.init();
+  console.log('✅ Helix Projects initialized');
+
+  meshViewer.init();
+  console.log('✅ Mesh Viewer armed (loads on approach)');
+
   if (FEATURES.waterRipple) {
     waterRipple.init();
     console.log('✅ Water Ripple initialized');
@@ -77,10 +84,6 @@ function initializeApp() {
 
   if (FEATURES.starfield) {
     starfield.init();
-  }
-
-  if (FEATURES.customCursor) {
-    customCursor.init();
   }
 
   console.log('✨ Portfolio ready!');
@@ -121,5 +124,6 @@ export {
   waterRipple,
   contactForm,
   starfield,
-  customCursor
+  helixProjects,
+  meshViewer
 };
