@@ -425,6 +425,60 @@
           and transparent tracking of conservation efforts.
         </p>
 
+        <!-- Stylized turtle-tracking map (css/components/turtle-map.css) -->
+        <div class="turtle-map" aria-label="Turtle tracking map near Redang Island, Terengganu">
+          <svg class="turtle-map-svg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img">
+            <!-- sea grid -->
+            <g class="tm-grid">
+              <line x1="0" y1="46" x2="400" y2="46"/>
+              <line x1="0" y1="92" x2="400" y2="92"/>
+              <line x1="0" y1="138" x2="400" y2="138"/>
+              <line x1="0" y1="184" x2="400" y2="184"/>
+              <line x1="80" y1="0" x2="80" y2="230"/>
+              <line x1="160" y1="0" x2="160" y2="230"/>
+              <line x1="240" y1="0" x2="240" y2="230"/>
+              <line x1="320" y1="0" x2="320" y2="230"/>
+            </g>
+
+            <!-- Terengganu coast (land on the west) -->
+            <path class="tm-land" d="M0,0 L150,0 C140,34 162,54 138,80 C120,104 150,120 132,150 C116,176 140,196 122,230 L0,230 Z"/>
+
+            <!-- Redang Island offshore -->
+            <path class="tm-island" d="M244,74 C250,64 272,64 276,78 C281,91 264,100 251,96 C241,93 238,84 244,74 Z"/>
+            <text class="tm-label" x="248" y="112">Redang</text>
+
+            <!-- turtle travel track: nesting beach → open sea -->
+            <path class="tm-track" d="M140,152 C185,168 205,150 220,166 C245,150 250,132 262,138 C280,120 288,108 292,96"/>
+
+            <!-- turtle pings -->
+            <g class="tm-ping t1" transform="translate(220,166)">
+              <circle class="ring" cx="0" cy="0" r="7"/>
+              <circle class="ring delay" cx="0" cy="0" r="7"/>
+              <circle class="dot" cx="0" cy="0" r="3"/>
+            </g>
+            <g class="tm-ping t2" transform="translate(262,138)">
+              <circle class="ring" cx="0" cy="0" r="7"/>
+              <circle class="ring delay" cx="0" cy="0" r="7"/>
+              <circle class="dot" cx="0" cy="0" r="3"/>
+            </g>
+            <g class="tm-ping t3" transform="translate(292,96)">
+              <circle class="ring" cx="0" cy="0" r="7"/>
+              <circle class="ring delay" cx="0" cy="0" r="7"/>
+              <circle class="dot" cx="0" cy="0" r="3"/>
+            </g>
+
+            <!-- coordinate readouts -->
+            <text class="tm-coord" x="228" y="164">5.78°N 103.01°E</text>
+            <text class="tm-coord" x="270" y="136">5.81°N 103.06°E</text>
+
+            <!-- header + legend -->
+            <text class="tm-title" x="12" y="20">SEATRU · LIVE TRACKING</text>
+            <circle class="tm-legend-dot" cx="16" cy="214" r="3"/>
+            <text class="tm-label" x="24" y="217">Tagged turtle</text>
+          </svg>
+        </div>
+        <p class="demo-note">Illustration only — not live tracking data.</p>
+
         <div class="project-highlights">
           <div class="highlight-item">
             <span class="highlight-icon">✓</span>
@@ -476,6 +530,9 @@
           web crawling as a sequential decision-making problem using semantic relevance
           and adaptive prioritization.
         </p>
+
+        <!-- Interactive crawl-race demo (js/modules/crawler-demo.js) -->
+        <div class="crawler-demo" id="crawler-demo" aria-label="Interactive web crawler demonstration"></div>
 
         <div class="project-highlights">
           <div class="highlight-item">

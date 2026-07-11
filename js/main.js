@@ -22,6 +22,7 @@ import contactForm from './modules/contact-form.js';
 import starfield from './modules/starfield.js';
 import helixProjects from './modules/helix-projects.js';
 import meshViewer from './modules/mesh-viewer.js';
+import crawlerDemo from './modules/crawler-demo.js';
 
 /**
  * Initialize all application modules
@@ -74,6 +75,9 @@ function initializeApp() {
   meshViewer.init();
   console.log('✅ Mesh Viewer armed (loads on approach)');
 
+  crawlerDemo.init();
+  console.log('✅ Crawler Demo armed (loads on approach)');
+
   if (FEATURES.waterRipple) {
     waterRipple.init();
     console.log('✅ Water Ripple initialized');
@@ -125,5 +129,6 @@ export {
   contactForm,
   starfield,
   helixProjects,
-  meshViewer
+  meshViewer,
+  crawlerDemo
 };

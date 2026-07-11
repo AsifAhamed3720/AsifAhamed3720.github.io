@@ -22,6 +22,8 @@
 @import './components/images.css';
 @import './components/helix.css';
 @import './components/mesh-viewer.css';
+@import './components/turtle-map.css';
+@import './components/crawler-demo.css';
 @import './components/contact.css';
 @import './components/scroll-to-top.css';
 @import './components/footer.css';

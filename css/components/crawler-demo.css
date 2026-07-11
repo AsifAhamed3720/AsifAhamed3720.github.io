@@ -1,0 +1,179 @@
+/* =========================
+   CRAWLER DEMO
+   Interactive breadth-first vs greedy "crawl race" in the Web Crawler card.
+   Built by js/modules/crawler-demo.js.
+========================= */
+
+.crawler-demo {
+  margin: 18px 0;
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: 12px;
+  padding: 14px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(167, 139, 250, 0.06), rgba(10, 10, 10, 0) 70%);
+}
+
+/* ── Controls ─────────────────────────────────────────────── */
+.cd-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.cd-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.cd-topic {
+  padding: 5px 11px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(20, 20, 20, 0.5);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.cd-topic:hover { color: var(--text-primary); border-color: rgba(167, 139, 250, 0.45); }
+.cd-topic.active {
+  color: #fff;
+  background: rgba(167, 139, 250, 0.22);
+  border-color: rgba(167, 139, 250, 0.6);
+}
+
+.cd-budget {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+.cd-budget-input { width: 90px; accent-color: var(--primary-blue); cursor: pointer; }
+.cd-budget-val { color: var(--primary-blue); font-weight: 700; }
+
+.cd-run {
+  margin-left: auto;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(77, 163, 255, 0.35), rgba(143, 123, 255, 0.35));
+  border: 1px solid rgba(143, 123, 255, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.1s ease;
+}
+.cd-run:hover { filter: brightness(1.2); }
+.cd-run:active { transform: scale(0.97); }
+
+/* ── Arena: two side-by-side graphs ───────────────────────── */
+.cd-arena {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cd-panel {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 8px 10px 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.cd-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.cd-panel-name { font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); }
+.cd-panel-prec { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.cd-graph { width: 100%; height: auto; display: block; }
+
+/* graph elements */
+.cd-edge { stroke: rgba(167, 139, 250, 0.16); stroke-width: 1; }
+
+/* animated crawl step: a colored line drawing from parent -> node */
+.cd-travel {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.42s ease-out;
+  pointer-events: none;
+}
+.cd-travel.rel {
+  stroke: #4cd964;
+  filter: drop-shadow(0 0 3px rgba(76, 217, 100, 0.7));
+}
+.cd-travel.irr { stroke: rgba(160, 160, 170, 0.75); }
+.cd-node {
+  fill: rgba(20, 20, 20, 0.9);
+  stroke: rgba(167, 139, 250, 0.4);
+  stroke-width: 1.4;
+  transition: fill 0.3s ease, stroke 0.3s ease, r 0.3s ease;
+}
+.cd-node.cd-seed { stroke: var(--primary-blue); stroke-width: 2; }
+.cd-node.fetched.relevant {
+  fill: #4cd964;
+  stroke: #4cd964;
+  filter: drop-shadow(0 0 4px rgba(76, 217, 100, 0.7));
+}
+.cd-node.fetched.irrelevant {
+  fill: rgba(120, 120, 130, 0.7);
+  stroke: rgba(150, 150, 160, 0.7);
+}
+
+/* precision bar */
+.cd-bar {
+  margin-top: 8px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.cd-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: rgba(150, 150, 160, 0.6);
+  transition: width 0.4s ease;
+}
+.cd-bar-fill.cd-bar-strong {
+  background: linear-gradient(90deg, #4cd964, #34c759);
+}
+
+/* ── Real-metrics strip ───────────────────────────────────── */
+.cd-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.cd-metrics-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+.cd-metric b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.cd-metric-note { font-style: italic; }
+
+/* ── Light theme ──────────────────────────────────────────── */
+[data-theme="light"] .cd-node { fill: rgba(255, 255, 255, 0.9); }
+[data-theme="light"] .cd-node.fetched.irrelevant {
+  fill: rgba(150, 150, 160, 0.6); stroke: rgba(120, 120, 130, 0.7);
+}
+
+/* ── Mobile: stack the two panels ─────────────────────────── */
+@media (max-width: 600px) {
+  .cd-arena { grid-template-columns: 1fr; }
+  .cd-run { margin-left: 0; }
+}
