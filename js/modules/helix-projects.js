@@ -124,7 +124,8 @@ class HelixProjects {
 
   // ── Main loop ──────────────────────────────────────────────────────────────
   _loop() {
-    this._tick();
+    // Skip the per-frame layout read + transforms while the tab is hidden.
+    if (!document.hidden) this._tick();
     this.rafId = requestAnimationFrame(() => this._loop());
   }
 

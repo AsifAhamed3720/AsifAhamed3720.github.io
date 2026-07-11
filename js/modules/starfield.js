@@ -28,6 +28,8 @@ const CONFIG = {
   minAlpha : 0.24,
   maxAlpha : 1,
   lineDistSq : 140 * 140,   // squared 2D screen distance for connection lines
+  lineBuckets : 6,          // alpha buckets for batched connection-line strokes
+  maxLineAlpha : 0.34,      // ceiling of the per-line alpha formula (for bucketing)
 
   colorDark  : '167, 139, 250',
   colorLight : '124, 58, 237',
@@ -75,6 +77,7 @@ class Starfield {
     this.helixSpinPhase   = 0;   // column rotation synced to card progress
     this.idleSpin         = 0;   // slow constant turn so it never sits still
     this.strandLists      = [[], []];  // rail stars in order, per strand
+    this._lineBuckets     = [];  // reused per-frame segment buffers (batched lines)
 
     this.rafId = null;
     this.initialized = false;
@@ -112,7 +115,9 @@ class Starfield {
   }
 
   _resize() {
-    const dpr = window.devicePixelRatio || 1;
+    // Cap DPR at 2 — beyond that the extra fill cost isn't worth it for a
+    // subtle background field, and it protects 3× displays on weak GPUs.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.canvas.width  = w * dpr;
@@ -227,8 +232,11 @@ class Starfield {
   // ── Main loop ─────────────────────────────────────────────────────────────
 
   _loop() {
-    this._update();
-    this._draw();
+    // Don't burn CPU/GPU animating a field nobody can see (background tab).
+    if (!document.hidden) {
+      this._update();
+      this._draw();
+    }
     this.rafId = requestAnimationFrame(() => this._loop());
   }
 
@@ -403,27 +411,54 @@ class Starfield {
       }
     }
 
-    // ── Connection lines ─────────────────────────────────────────────────────
+    // ── Connection lines (batched) ────────────────────────────────────────────
+    //   Thousands of faint links used to be a separate stroke() per line —
+    //   the single biggest cost in the whole app. Instead we quantise each
+    //   line's alpha into a few buckets and stroke every line in a bucket as
+    //   one path, turning ~10k stroke calls into ~6. Visually identical.
+    const LB = CONFIG.lineBuckets;
+    const maxLA = CONFIG.maxLineAlpha;
+    if (this._lineBuckets.length !== LB) {
+      this._lineBuckets = Array.from({ length: LB }, () => []);
+    }
+    const buckets = this._lineBuckets;
+    for (let b = 0; b < LB; b++) buckets[b].length = 0;
+
+    const lineDistSq = CONFIG.lineDistSq;
     for (let i = 0; i < visible.length; i++) {
       const a = visible[i];
+      const ax = a.sx, ay = a.sy, na = norm(a), am = a.alphaMul;
       for (let j = i + 1; j < visible.length; j++) {
-        const b  = visible[j];
-        const dx = a.sx - b.sx;
-        const dy = a.sy - b.sy;
-        if (dx * dx + dy * dy > CONFIG.lineDistSq) continue;
+        const b = visible[j];
+        const dx = ax - b.sx;
+        const dy = ay - b.sy;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > lineDistSq) continue;
 
-        const d        = Math.sqrt(dx * dx + dy * dy);
-        const depthFac = (norm(a) + norm(b)) * 0.5;
+        const d = Math.sqrt(d2);
+        const depthFac = (na + norm(b)) * 0.5;
         const lineAlpha = (1 - d / 160) * depthFac * 0.34 *
-                          Math.min(a.alphaMul, b.alphaMul);
+                          (am < b.alphaMul ? am : b.alphaMul);
         if (lineAlpha <= 0.01) continue;
-        ctx.strokeStyle = `rgba(${color}, ${lineAlpha})`;
-        ctx.lineWidth   = 0.5 + depthFac * 0.4;
-        ctx.beginPath();
-        ctx.moveTo(a.sx, a.sy);
-        ctx.lineTo(b.sx, b.sy);
-        ctx.stroke();
+
+        let bi = (lineAlpha / maxLA * LB) | 0;
+        if (bi >= LB) bi = LB - 1;
+        const seg = buckets[bi];
+        seg.push(ax, ay, b.sx, b.sy);
       }
+    }
+
+    ctx.lineWidth = 0.65; // negligible variation; one width per frame
+    for (let b = 0; b < LB; b++) {
+      const seg = buckets[b];
+      if (seg.length === 0) continue;
+      ctx.strokeStyle = `rgba(${color}, ${((b + 0.5) / LB * maxLA).toFixed(3)})`;
+      ctx.beginPath();
+      for (let k = 0; k < seg.length; k += 4) {
+        ctx.moveTo(seg[k], seg[k + 1]);
+        ctx.lineTo(seg[k + 2], seg[k + 3]);
+      }
+      ctx.stroke();
     }
 
     // ── Stars ────────────────────────────────────────────────────────────────

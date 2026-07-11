@@ -55,12 +55,13 @@ class CursorGlow {
    */
   startAnimation() {
     const animate = () => {
-      this.glowX += (this.mouseX - this.glowX) * this.speed;
-      this.glowY += (this.mouseY - this.glowY) * this.speed;
-      
-      this.glow.style.left = this.glowX + 'px';
-      this.glow.style.top = this.glowY + 'px';
-      
+      if (!document.hidden) {
+        this.glowX += (this.mouseX - this.glowX) * this.speed;
+        this.glowY += (this.mouseY - this.glowY) * this.speed;
+
+        this.glow.style.left = this.glowX + 'px';
+        this.glow.style.top = this.glowY + 'px';
+      }
       this.animationId = requestAnimationFrame(animate);
     };
     
