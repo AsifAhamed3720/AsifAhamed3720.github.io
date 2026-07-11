@@ -23,10 +23,11 @@
     0 0 80px rgba(167, 139, 250, calc(var(--glow-opacity) / 2)),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
   
-  /* Faster transition for shadows to follow cursor smoothly */
+  /* Shadow smoothing is handled per-frame in JS (dynamic-shadows.js), so the
+     box-shadow is intentionally NOT transitioned here — a CSS transition would
+     restart on every update and repaint continuously. */
   transition:
     transform 0.25s ease,
-    box-shadow 0.15s ease-out,
     border 0.35s ease;
 }
 
