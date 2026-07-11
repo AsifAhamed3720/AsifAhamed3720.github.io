@@ -43,7 +43,7 @@ class Navigation {
       } else {
         this.nav.classList.remove('scrolled');
       }
-    });
+    }, { passive: true });
   }
 
   /**

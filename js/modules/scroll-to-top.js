@@ -38,7 +38,7 @@ class ScrollToTop {
       } else {
         this.scrollBtn.classList.remove('visible');
       }
-    });
+    }, { passive: true });
   }
 
   /**
