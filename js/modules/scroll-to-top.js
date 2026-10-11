@@ -33,11 +33,11 @@ class ScrollToTop {
    */
   setupScrollListener() {
     window.addEventListener('scroll', () => {
-      if (window.pageYOffset > 300) {
-        this.scrollBtn.classList.add('visible');
-      } else {
-        this.scrollBtn.classList.remove('visible');
-      }
+      const y = window.pageYOffset;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      this.scrollBtn.classList.toggle('visible', y > 300);
+      // the bar along the button's edge (scroll-to-top.css) shows progress
+      this.scrollBtn.style.setProperty('--sp', max > 0 ? Math.min(y / max, 1).toFixed(4) : '0');
     }, { passive: true });
   }
 

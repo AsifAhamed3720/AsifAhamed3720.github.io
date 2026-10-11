@@ -1,65 +1,69 @@
 /* =========================
-   FILTER BUTTONS
+   FILTER BAR
+   A segmented control: one block slides under the active category
+   (positioned by js/modules/project-filters.js).
 ========================= */
 .filter-container {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
+  position: relative;
+  display: inline-flex;
   flex-wrap: wrap;
-  margin-bottom: 60px;
+  gap: 2px;
+  margin: 0 0 60px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.filter-ind {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .5s var(--ease-out), width .5s var(--ease-out), height .5s var(--ease-out), opacity .3s ease;
 }
 
 .filter-btn {
-  padding: 10px 24px;
-  background: rgba(30, 30, 30, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 25px;
+  position: relative;
+  z-index: 1;
+  padding: 9px 18px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-xs);
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
   font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.35s ease, background-color 0.3s ease;
 }
 
-[data-theme="light"] .filter-btn {
-  background: rgba(240, 240, 240, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  color: var(--text-secondary);
-}
+.filter-btn:hover { color: var(--text-primary); background: var(--accent-soft); }
 
-.filter-btn:hover {
-  background: rgba(40, 40, 40, 0.8);
-  border-color: rgba(77, 163, 255, 0.3);
-  transform: translateY(-2px);
-}
+.filter-btn.active,
+.filter-btn.active:hover { color: var(--on-accent); background: transparent; }
 
-[data-theme="light"] .filter-btn:hover {
-  background: rgba(220, 220, 220, 0.9);
-  border-color: var(--primary-blue);
-}
-
-.filter-btn.active {
+/* without the script the active button carries its own fill */
+.filter-container:not(.has-ind) .filter-btn.active {
   background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
 }
 
 @media (max-width: 768px) {
   .filter-container {
-    gap: 8px;
+    display: flex;
     margin-bottom: 40px;
   }
 
   .filter-btn {
-    padding: 8px 16px;
+    flex: 1 1 auto;
+    padding: 8px 12px;
     font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .filter-btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
   }
 }

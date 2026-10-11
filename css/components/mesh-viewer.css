@@ -9,7 +9,7 @@
   height: 230px;
   margin: 18px 0;
   border: 1px solid rgba(167, 139, 250, 0.15);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background:
     radial-gradient(ellipse at 50% 40%,
@@ -42,8 +42,9 @@
   position: absolute;
   left: 12px;
   bottom: 10px;
-  font-size: 0.72rem;
-  letter-spacing: 0.4px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.3px;
   color: var(--text-muted);
   pointer-events: none;
   z-index: 2;
@@ -67,7 +68,7 @@
   color: var(--text-muted);
   background: rgba(20, 20, 20, 0.55);
   border: 1px solid rgba(167, 139, 250, 0.22);
-  border-radius: 999px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }

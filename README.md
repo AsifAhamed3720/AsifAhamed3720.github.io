@@ -23,6 +23,8 @@ A modern, responsive portfolio website showcasing my projects and skills in AI, 
 - **Dynamic Cursor Shadows** - Shadows follow cursor position for immersive lighting
 - **Image Hover Effects** - Project images slide out smoothly on hover
 - **Lightbox Gallery** - Click images for full-screen view with smooth animations
+- **Scroll Reveals** - Headings rise word by word, path labels decode, cards slide in and the 95% figure rolls like an odometer (`js/modules/scroll-animations.js` + `css/components/motion.css`). Hidden states only apply once the script adds `.motion-ready`, so with JS off or reduced motion the page is simply static
+- **Day/Night Wipe** - The theme spreads out from the toggle as a circle (View Transitions), and the nav underline follows the section being read
 
 ### 🚀 **Performance**
 - **Modular ES6 JavaScript** - Clean, maintainable code split into logical modules

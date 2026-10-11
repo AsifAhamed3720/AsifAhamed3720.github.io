@@ -37,14 +37,20 @@ const CONFIG = {
   // ── Helix column (projects section staircase anchor) ──
   // Driven by js/modules/helix-projects.js via helixMorphTarget/helixSpinPhase.
   helix : {
-    strandCount : 180,     // stars forming the two spiral rails
+    strandCount : 180,     // stars beading the two spiral rails
     coreCount   : 90,      // stars filling the inside of the column
     dustCount   : 90,      // stars orbiting the column for atmosphere
     radius      : 125,     // rail radius in star-space
     height      : 1500,    // column vertical extent in star-space
     turns       : 3.5,     // full turns over that height
-    stepEvery   : 5,       // a tread spoke every N rail-star pairs
     morphEase   : 0.05,    // how slowly stars gather / release
+    ribbonSamples : 280,   // points per strand for the smooth rails
+    depthBuckets  : 6,     // rail segments batched by depth (back -> front)
+    rungsPerTurn  : 9,     // base-pair rungs joining the strands
+    pulsesPerStrand : 3,   // light pulses climbing each strand
+    pulseSpeed    : 0.0011, // strand fraction per frame at rest
+    pulseScrollBoost : 0.05, // extra pulse travel per radian the column turns
+    pulseTail     : 0.07,  // pulse tail length (strand fraction)
     colorsDark  : { strandA: '167, 139, 250', strandB: '96, 165, 250', core: '224, 214, 255' },
     colorsLight : { strandA: '124, 58, 237',  strandB: '37, 99, 235',  core: '109, 40, 217' },
   },
@@ -77,7 +83,10 @@ class Starfield {
     this.helixSpinPhase   = 0;   // column rotation synced to card progress
     this.idleSpin         = 0;   // slow constant turn so it never sits still
     this.strandLists      = [[], []];  // rail stars in order, per strand
+    this.spin             = 0;   // column angle this frame (helixSpinPhase + idleSpin)
+    this.pulseClock       = 0;   // drives the light pulses up the rails
     this._lineBuckets     = [];  // reused per-frame segment buffers (batched lines)
+    this._pt              = { x: 0, y: 0, f: 0 };  // scratch for _railPoint
 
     this.rafId = null;
     this.initialized = false;
@@ -162,7 +171,7 @@ class Starfield {
         roleColor: null,              // palette key, resolved per theme
         sizeMul  : 1,
         alphaMul : 1,
-        isStep   : false,
+        lineMul  : 1,                 // share in the constellation web
       };
 
       if (i < helix.strandCount) {
@@ -170,15 +179,13 @@ class Starfield {
         const strand = i % 2;
         const pair = Math.floor(i / 2);
         const t = pair / (helix.strandCount / 2 - 1);
+        // exactly on the rail (see _railPoint), so the stars bead the ribbon
         s.role  = 'strand';
-        s.hAng  = t * helix.turns * Math.PI * 2
-                + strand * Math.PI
-                + (Math.random() - 0.5) * 0.08;
+        s.hAng  = t * helix.turns * Math.PI * 2 + strand * Math.PI;
         s.hY    = (t - 0.5) * helix.height;
-        s.hR    = helix.radius + (Math.random() - 0.5) * 14;
+        s.hR    = helix.radius;
         s.roleColor = strand === 0 ? 'strandA' : 'strandB';
-        s.sizeMul = 1.15;
-        s.isStep = (pair % helix.stepEvery === 2);  // tread spoke anchor
+        s.sizeMul = 1.05;
         this.strandLists[strand].push(s);
       } else if (i < helix.strandCount + helix.coreCount) {
         // interior star — fills the column volume, denser near the axis
@@ -265,6 +272,10 @@ class Starfield {
     }
     this.idleSpin += 0.0012;
     const spin = this.helixSpinPhase + this.idleSpin;
+    // pulses climb steadily, and faster while the column is being turned
+    this.pulseClock += CONFIG.helix.pulseSpeed +
+      Math.abs(spin - this.spin) * CONFIG.helix.pulseScrollBoost;
+    this.spin = spin;
     const morph = this.helixMorph;
     const smooth = t => t * t * (3 - 2 * t);
 
@@ -294,26 +305,31 @@ class Starfield {
           y3 = y1 + (s.hY - y1) * e;
           z3 = z2 + (Math.cos(a) * s.hR - z2) * e;
           s.alphaMul = 1 + e * 0.3;
+          s.lineMul  = 1 - e * 0.9;   // the rails replace the web here
         } else if (s.role === 'core') {
           a = s.hAng + spin * s.spinF;   // inner stars turn slower
           x3 = x2 + (Math.sin(a) * s.hR - x2) * e;
           y3 = y1 + (s.hY - y1) * e;
           z3 = z2 + (Math.cos(a) * s.hR - z2) * e;
           s.alphaMul = 1 + e * 0.15;
+          s.lineMul  = 1 - e * 0.65;
         } else if (s.role === 'dust') {
           a = s.hAng + spin * 0.45;      // slower orbit = parallax
           x3 = x2 + (Math.sin(a) * s.hR - x2) * e;
           y3 = y1 + (s.hY - y1) * e;
           z3 = z2 + (Math.cos(a) * s.hR - z2) * e;
           s.alphaMul = 1 - e * 0.4;
+          s.lineMul  = s.alphaMul;
         } else {
           // background stars drift outward and dim, clearing the stage
           x3 = x2 * (1 + e * 0.9);
           y3 = y1 * (1 + e * 0.5);
           s.alphaMul = 1 - e * 0.7;
+          s.lineMul  = s.alphaMul;
         }
       } else {
         s.alphaMul = 1;
+        s.lineMul  = 1;
       }
 
       // Perspective — skip stars behind the camera
@@ -374,42 +390,9 @@ class Starfield {
     const pal = this.isLight ? CONFIG.helix.colorsLight : CONFIG.helix.colorsDark;
     const starColor = s => (s.roleColor ? pal[s.roleColor] : color);
 
-    // ── Helix structure: rails and tread spokes ──────────────────────────────
-    if (this.helixMorph > 0.02) {
-      // rails — continuous lines along each strand
-      for (let st = 0; st < 2; st++) {
-        const list = this.strandLists[st];
-        for (let r = 0; r < list.length - 1; r++) {
-          const ra = list[r], rb = list[r + 1];
-          if (ra.sc <= 0 || rb.sc <= 0) continue;
-          const eMin = Math.min(ra.e, rb.e);
-          if (eMin < 0.05) continue;
-          const depth = (norm(ra) + norm(rb)) * 0.5;
-          ctx.strokeStyle = `rgba(${starColor(ra)}, ${eMin * (0.18 + depth * 0.35)})`;
-          ctx.lineWidth = 0.6 + depth * 0.9;
-          ctx.beginPath();
-          ctx.moveTo(ra.sx, ra.sy);
-          ctx.lineTo(rb.sx, rb.sy);
-          ctx.stroke();
-        }
-      }
-
-      // treads — spokes from the center axis out to marked rail stars
-      for (let q = 0; q < CONFIG.helix.strandCount; q++) {
-        const sp = this.stars[q];
-        if (!sp.isStep || sp.sc <= 0 || sp.e < 0.1) continue;
-        const depth = norm(sp);
-        const grad = ctx.createLinearGradient(W / 2, sp.sy, sp.sx, sp.sy);
-        grad.addColorStop(0, `rgba(${pal.core}, ${sp.e * 0.05})`);
-        grad.addColorStop(1, `rgba(${starColor(sp)}, ${sp.e * (0.12 + depth * 0.3)})`);
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 0.8 + depth * 0.6;
-        ctx.beginPath();
-        ctx.moveTo(W / 2, sp.sy);
-        ctx.lineTo(sp.sx, sp.sy);
-        ctx.stroke();
-      }
-    }
+    // ── Helix column, back half: glow, far rails, base-pair rungs ───────────
+    const helixOn = this.helixMorph > 0.02;
+    if (helixOn) this._drawHelix('back', pal);
 
     // ── Connection lines (batched) ────────────────────────────────────────────
     //   Thousands of faint links used to be a separate stroke() per line —
@@ -427,7 +410,7 @@ class Starfield {
     const lineDistSq = CONFIG.lineDistSq;
     for (let i = 0; i < visible.length; i++) {
       const a = visible[i];
-      const ax = a.sx, ay = a.sy, na = norm(a), am = a.alphaMul;
+      const ax = a.sx, ay = a.sy, na = norm(a), am = a.lineMul;
       for (let j = i + 1; j < visible.length; j++) {
         const b = visible[j];
         const dx = ax - b.sx;
@@ -438,7 +421,7 @@ class Starfield {
         const d = Math.sqrt(d2);
         const depthFac = (na + norm(b)) * 0.5;
         const lineAlpha = (1 - d / 160) * depthFac * 0.34 *
-                          (am < b.alphaMul ? am : b.alphaMul);
+                          (am < b.lineMul ? am : b.lineMul);
         if (lineAlpha <= 0.01) continue;
 
         let bi = (lineAlpha / maxLA * LB) | 0;
@@ -515,6 +498,192 @@ class Starfield {
         ctx.fill();
       }
     });
+
+    // ── Helix column, front half: near rails and the climbing pulses ────────
+    if (helixOn) this._drawHelix('front', pal);
+  }
+
+  // ── Helix column ──────────────────────────────────────────────────────────
+  //   Drawn from the analytic curve rather than through the stars, so the
+  //   rails are smooth. The column doesn't take the field's rotation, only
+  //   its own spin, which matches where the morph puts the rail stars.
+
+  /**
+   * Project the point at fraction t (0 = top, 1 = bottom) of a strand.
+   * f is how far round to the front it is: 0 = straight behind, 1 = front.
+   */
+  _railPoint(strand, t, out = this._pt) {
+    const { radius, height, turns } = CONFIG.helix;
+    const a = t * turns * Math.PI * 2 + strand * Math.PI + this.spin;
+    const z = Math.cos(a) * radius;
+    const sc = CONFIG.focal / (CONFIG.focal + z);
+    out.x = Math.sin(a) * radius * sc + this.W / 2;
+    out.y = (t - 0.5) * height * sc + this.H / 2;
+    out.f = (1 - Math.cos(a)) / 2;
+    return out;
+  }
+
+  /**
+   * The column grows from its middle as the stars gather, then the rails,
+   * rungs and pulses fade up. Back pass (before the stars): glow, far rails,
+   * rungs, which pass behind the near rail. Front pass: near rails, pulses.
+   * @param {'back'|'front'} pass
+   * @param {Object} pal - Per-theme helix palette
+   */
+  _drawHelix(pass, pal) {
+    const { ctx, W, H } = this;
+    const h = CONFIG.helix;
+    const smooth = t => t * t * (3 - 2 * t);
+    const clamp01 = v => Math.min(1, Math.max(0, v));
+
+    const m = this.helixMorph;
+    const reveal = smooth(clamp01((m - 0.1) / 0.8)) * 0.5;  // half-extent in t
+    // rail/rung strength; a touch stronger on the light page, where the
+    // same alpha reads paler
+    const ink = smooth(clamp01((m - 0.25) / 0.75)) * (this.isLight ? 1.25 : 1);
+    if (reveal <= 0.01 || ink <= 0.01) return;
+    const t0 = 0.5 - reveal;
+    const t1 = 0.5 + reveal;
+    // soften the growing tips so the column doesn't end in a hard cut
+    const tipFade = t => clamp01((reveal - Math.abs(t - 0.5)) / 0.06);
+
+    if (pass === 'back') {
+      // soft light at the column's core: a tall ellipse, brightest at the
+      // reading height and fading out toward the top and bottom
+      const gw = h.radius * 2.2;
+      ctx.save();
+      ctx.translate(W / 2, H / 2);
+      ctx.scale(1, Math.max((H * 1.2 * reveal) / gw, 0.01));
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, gw);
+      glow.addColorStop(0, `rgba(${pal.core}, ${ink * (this.isLight ? 0.06 : 0.09)})`);
+      glow.addColorStop(1, `rgba(${pal.core}, 0)`);
+      ctx.fillStyle = glow;
+      ctx.fillRect(-gw, -gw, gw * 2, gw * 2);
+      ctx.restore();
+    }
+
+    // rails, batched into depth buckets per strand (one path per bucket)
+    const B = h.depthBuckets;
+    const half = B / 2;
+    const S = h.ribbonSamples;
+    const prev = { x: 0, y: 0, f: 0 };
+    const cur = { x: 0, y: 0, f: 0 };
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    for (let st = 0; st < 2; st++) {
+      const paths = new Array(B).fill(null);
+      let lastBucket = -1;
+      for (let i = 0; i <= S; i++) {
+        this._railPoint(st, t0 + (t1 - t0) * (i / S), cur);
+        if (i > 0) {
+          const offscreen = (prev.y < -40 && cur.y < -40) || (prev.y > H + 40 && cur.y > H + 40);
+          const b = Math.min(B - 1, Math.floor(((prev.f + cur.f) / 2) * B));
+          const inPass = pass === 'back' ? b < half : b >= half;
+          if (!offscreen && inPass) {
+            if (!paths[b]) paths[b] = new Path2D();
+            if (b !== lastBucket) paths[b].moveTo(prev.x, prev.y);
+            paths[b].lineTo(cur.x, cur.y);
+            lastBucket = b;
+          } else {
+            lastBucket = -1;
+          }
+        }
+        prev.x = cur.x; prev.y = cur.y; prev.f = cur.f;
+      }
+
+      const col = st === 0 ? pal.strandA : pal.strandB;
+      for (let b = 0; b < B; b++) {
+        if (!paths[b]) continue;
+        // the far side stays clearly visible so both strands read as a
+        // double helix; the near side is thicker and brighter
+        const f = (b + 0.5) / B;
+        const width = 0.8 + f * 2.0;
+        const alpha = Math.min(1, ink * (0.17 + Math.pow(f, 1.4) * 0.55));
+        if (f > 0.6) {
+          // halo under the nearest stretch of rail
+          ctx.strokeStyle = `rgba(${col}, ${alpha * 0.14})`;
+          ctx.lineWidth = width * 4.5;
+          ctx.stroke(paths[b]);
+        }
+        ctx.strokeStyle = `rgba(${col}, ${alpha})`;
+        ctx.lineWidth = width;
+        ctx.stroke(paths[b]);
+      }
+    }
+
+    if (pass === 'back') {
+      // base-pair rungs: strand A to strand B through the axis, brighter
+      // at whichever end is in front
+      const count = Math.round(h.turns * h.rungsPerTurn);
+      const a = { x: 0, y: 0, f: 0 };
+      const b = { x: 0, y: 0, f: 0 };
+      ctx.lineWidth = 1.1;
+      for (let k = 0; k < count; k++) {
+        const t = (k + 0.5) / count;
+        const fade = tipFade(t);
+        if (fade <= 0) continue;
+        this._railPoint(0, t, a);
+        this._railPoint(1, t, b);
+        if ((a.y < -20 && b.y < -20) || (a.y > H + 20 && b.y > H + 20)) continue;
+        const g = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+        g.addColorStop(0, `rgba(${pal.strandA}, ${ink * fade * (0.06 + a.f * 0.34)})`);
+        g.addColorStop(0.5, `rgba(${pal.core}, ${ink * fade * 0.1})`);
+        g.addColorStop(1, `rgba(${pal.strandB}, ${ink * fade * (0.06 + b.f * 0.34)})`);
+        ctx.strokeStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+      return;
+    }
+
+    // pulses: a bright head with a fading tail, climbing each strand
+    const P = h.pulsesPerStrand;
+    const TAIL = 10;
+    const p = { x: 0, y: 0, f: 0 };
+    const q = { x: 0, y: 0, f: 0 };
+    for (let st = 0; st < 2; st++) {
+      const col = st === 0 ? pal.strandA : pal.strandB;
+      for (let k = 0; k < P; k++) {
+        // offset per strand so the two strands' pulses never line up
+        const phase = (this.pulseClock + k / P + st * 0.5 / P) % 1;
+        const head = 1 - phase;                  // climbs from bottom to top
+        const fade = tipFade(head);
+        if (fade <= 0) continue;
+        this._railPoint(st, head, p);
+        if (p.y < -30 || p.y > H + 30) continue;
+        const bright = ink * fade * (0.2 + p.f * 0.8);
+        const px = p.x, py = p.y, pf = p.f;
+
+        // tail: segments brightening toward the head
+        ctx.lineWidth = 1.2 + pf * 1.6;
+        for (let j = TAIL; j > 0; j--) {
+          const ta = head + (h.pulseTail * j) / TAIL;
+          if (ta > t1) continue;
+          this._railPoint(st, ta, q);
+          const qx = q.x, qy = q.y;
+          this._railPoint(st, head + (h.pulseTail * (j - 1)) / TAIL, q);
+          ctx.strokeStyle = `rgba(${col}, ${bright * (1 - j / (TAIL + 1)) * 0.75})`;
+          ctx.beginPath();
+          ctx.moveTo(qx, qy);
+          ctx.lineTo(q.x, q.y);
+          ctx.stroke();
+        }
+
+        // head: soft glow and a hot centre
+        const r = 9 + pf * 9;
+        const glow = ctx.createRadialGradient(px, py, 0, px, py, r);
+        glow.addColorStop(0, `rgba(${pal.core}, ${bright * 0.9})`);
+        glow.addColorStop(0.35, `rgba(${col}, ${bright * 0.45})`);
+        glow.addColorStop(1, `rgba(${col}, 0)`);
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
 }
 

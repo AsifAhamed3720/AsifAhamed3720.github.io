@@ -1,0 +1,188 @@
+/* =========================
+   MOTION
+   Reveal states for js/modules/scroll-animations.js. Every hidden state is
+   scoped under .motion-ready, which the script adds only when motion is
+   allowed, so without it the page is static and complete. Text is never
+   removed: words sit in masks (.w) and their movers (.wi) rise into place.
+
+   Reveals replay in both directions. An element reset after scrolling out
+   the top carries .from-above, so coming back while scrolling up it drops
+   in from above instead of rising from below.
+========================= */
+
+/* set for one frame while the script resets an element out of sight */
+.motion-reset,
+.motion-reset * {
+  transition: none !important;
+}
+
+/* ---- word masks ---- */
+.w {
+  display: inline-block;
+  /* clip-path, not overflow: overflow:hidden would move the baseline to the
+     box bottom; the negative insets leave room for descenders and overhang */
+  clip-path: inset(-0.12em -0.1em -0.24em -0.1em);
+}
+
+.wi {
+  display: inline-block;
+  transition: transform 1s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.is-settled .w { clip-path: none; }
+
+.motion-ready .is-split:not(.is-in) .wi {
+  transform: translateY(112%) rotate(3deg);
+}
+
+.motion-ready .is-split.from-above:not(.is-in) .wi {
+  transform: translateY(-112%) rotate(-3deg);
+}
+
+/* the about paragraph comes into focus instead of rising out of a mask */
+[data-split="blur"] .w { clip-path: none; }
+
+[data-split="blur"] .wi {
+  transition: opacity .9s var(--ease-out), filter .9s var(--ease-out), transform 1s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 16ms);
+}
+
+.motion-ready [data-split="blur"]:not(.is-in) .wi {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(.35em);
+}
+
+.motion-ready [data-split="blur"].from-above:not(.is-in) .wi {
+  transform: translateY(-.35em);
+}
+
+/* ---- hero: plays as the loading screen lifts (html.intro-done) ---- */
+
+/* each word carries the name gradient itself, so it moves with the word */
+.hero-title .gradient-text.is-split {
+  background: none;
+  animation: none;
+}
+
+.hero-title .gradient-text .wi {
+  background: var(--name-gradient);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sheen 14s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -1.2s);
+  transform-origin: left bottom;
+  transition: transform 1.2s var(--ease-out);
+  transition-delay: calc(80ms + var(--i, 0) * 110ms);
+}
+
+.motion-ready:not(.intro-done) .hero-title .wi {
+  transform: translateY(115%) rotate(4deg);
+}
+
+.motion-ready .hero-content > :not(.hero-title) {
+  transition:
+    opacity .9s var(--ease-out) var(--hd, 0s),
+    transform 1s var(--ease-out) var(--hd, 0s);
+}
+
+.hero-subtitle { --hd: .42s; }
+.hero-description { --hd: .54s; }
+.hero-cta { --hd: .68s; }
+
+.motion-ready:not(.intro-done) .hero-content > :not(.hero-title) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+/* the cue is centred with a transform of its own, so it only fades */
+.motion-ready .scroll-cue { transition: opacity 1s ease 1.1s; }
+.motion-ready:not(.intro-done) .scroll-cue { opacity: 0; }
+
+/* ---- section headers: the path decodes (JS), the rule draws ---- */
+.section-path { transition: opacity .35s ease; }
+.motion-ready .section-head:not(.is-in) .section-path { opacity: 0; }
+
+.section-rule { transition: transform 1.3s var(--ease-in-out) .2s; }
+.motion-ready .section-head:not(.is-in) .section-rule { transform: scaleX(0); }
+
+/* ---- blocks: cards and contact pieces slide in; .rv is removed after ---- */
+.motion-ready .rv {
+  transition:
+    opacity .8s var(--ease-out) var(--d, 0ms),
+    transform 1s var(--ease-out) var(--d, 0ms);
+}
+
+.motion-ready .rv:not(.is-in) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.motion-ready .rv .skill-tag {
+  transition:
+    opacity .5s ease calc(var(--d, 0ms) + 260ms + var(--ti, 0) * 35ms),
+    transform .6s var(--ease-out) calc(var(--d, 0ms) + 260ms + var(--ti, 0) * 35ms);
+}
+
+.motion-ready .rv:not(.is-in) .skill-tag {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.motion-ready .rv.from-above:not(.is-in) { transform: translateY(-28px); }
+.motion-ready .rv.from-above:not(.is-in) .skill-tag { transform: translateY(-10px); }
+
+/* ---- odometer (the 95% precision figure) ---- */
+.odo-run {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.odo-d {
+  position: relative;
+  display: inline-block;
+  clip-path: inset(0 -0.05em);
+}
+
+.odo-ghost { visibility: hidden; }
+
+.odo-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  transition: transform 1.6s var(--ease-out) var(--od, 0ms);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* If the reader switches reduced motion on mid-visit, anything still
+   waiting simply appears. */
+@media (prefers-reduced-motion: reduce) {
+  .wi,
+  .rv,
+  .rv .skill-tag,
+  .section-rule,
+  .section-path,
+  .odo-strip,
+  .hero-content > *,
+  .scroll-cue {
+    transition: none !important;
+  }
+}

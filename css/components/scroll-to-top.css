@@ -1,27 +1,43 @@
 /* =========================
    SCROLL TO TOP
+   A square button whose outline fills as you read down the page.
 ========================= */
 .scroll-to-top {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
-  border: none;
-  border-radius: 50%;
-  color: white;
-  cursor: pointer;
+  bottom: 28px;
+  right: 28px;
+  width: 46px;
+  height: 46px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(20px);
-  transition: all 0.3s ease;
+  transform: translateY(16px);
+  transition: opacity .4s ease, visibility .4s, transform .5s var(--ease-out), border-color .3s ease, color .3s ease;
   z-index: 1000;
-  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
-  padding: 0;
+}
+
+/* progress along the bottom edge */
+.scroll-to-top::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
+  transform: scaleX(var(--sp, 0));
+  transform-origin: left center;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
 .scroll-to-top.visible {
@@ -31,39 +47,23 @@
 }
 
 .scroll-to-top:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.4);
+  border-color: var(--accent-line);
+  color: var(--primary-blue);
+  transform: translateY(-3px);
 }
 
 .scroll-to-top svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: block;
   margin: auto;
 }
 
 @media (max-width: 768px) {
   .scroll-to-top {
-    bottom: 20px;
-    right: 20px;
-    width: 45px;
-    height: 45px;
-  }
-  
-  .scroll-to-top svg {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .scroll-to-top {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .scroll-to-top svg {
-    width: 20px;
-    height: 20px;
+    bottom: 18px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
   }
 }

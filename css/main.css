@@ -3,6 +3,9 @@
  * Imports all CSS modules in proper order
  */
 
+/* Fonts - must load before anything that uses them */
+@import './fonts.css';
+
 /* Base styles - must load first */
 @import './base.css';
 
@@ -32,6 +35,9 @@
 @import './components/water-ripple.css';
 @import './components/starfield.css';
 @import './components/contact-form.css';
+
+/* Reveal states - after components so they can hold them back */
+@import './components/motion.css';
 
 /* Responsive overrides - must load last */
 @import './responsive.css';

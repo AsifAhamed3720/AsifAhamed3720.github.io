@@ -1,6 +1,7 @@
 /**
  * Main Application Entry Point
- * Complete portfolio functionality with ALL original features
+ * Stages the page while the loading screen covers it, then starts every
+ * module once the intro lifts.
  */
 
 import { FEATURES } from './constants.js';
@@ -8,14 +9,13 @@ import cardManager from './modules/card-manager.js';
 import lightbox from './modules/lightbox.js';
 import cardTilt from './modules/card-tilt.js';
 import dynamicShadows from './modules/dynamic-shadows.js';
-
-// NEW: Import all additional modules for complete functionality
 import navigation from './modules/navigation.js';
 import themeToggle from './modules/theme-toggle.js';
 import loadingScreen from './modules/loading-screen.js';
 import scrollAnimations from './modules/scroll-animations.js';
 import scrollToTop from './modules/scroll-to-top.js';
 import cursorGlow from './modules/cursor-glow.js';
+import pointerEffects from './modules/pointer-effects.js';
 import projectFilters from './modules/project-filters.js';
 import waterRipple from './modules/water-ripple.js';
 import contactForm from './modules/contact-form.js';
@@ -25,85 +25,64 @@ import meshViewer from './modules/mesh-viewer.js';
 import crawlerDemo from './modules/crawler-demo.js';
 
 /**
- * Initialize all application modules
+ * Start order. `flag` names a switch in FEATURES; modules without one always
+ * start. Reveals arm before the helix takes over the projects column, and the
+ * filters bind before the helix mirrors them.
+ */
+const MODULES = [
+  { name: 'Card Manager', module: cardManager },
+  { name: 'Lightbox', module: lightbox },
+  { name: 'Card Tilt', module: cardTilt, flag: 'cardTilt' },
+  { name: 'Dynamic Shadows', module: dynamicShadows, flag: 'dynamicShadows' },
+  { name: 'Navigation', module: navigation },
+  { name: 'Theme Toggle', module: themeToggle },
+  { name: 'Scroll Animations', module: scrollAnimations },
+  { name: 'Scroll to Top', module: scrollToTop },
+  { name: 'Cursor Glow', module: cursorGlow, flag: 'cursorGlow' },
+  { name: 'Pointer Effects', module: pointerEffects, flag: 'pointerEffects' },
+  { name: 'Project Filters', module: projectFilters },
+  { name: 'Helix Projects', module: helixProjects },
+  { name: 'Mesh Viewer', module: meshViewer },     // loads on approach
+  { name: 'Crawler Demo', module: crawlerDemo },   // loads on approach
+  { name: 'Water Ripple', module: waterRipple, flag: 'waterRipple' },
+  { name: 'Contact Form', module: contactForm },
+  { name: 'Starfield', module: starfield, flag: 'starfield' }
+];
+
+/**
+ * Initialize all application modules. Each starts on its own, so one that
+ * throws cannot stop the rest (or leave reveal states waiting forever).
  */
 function initializeApp() {
-  console.log('🚀 Portfolio initializing...');
-
-  // Core functionality - always load
-  cardManager.init();
-  console.log('✅ Card Manager initialized');
-
-  lightbox.init();
-  console.log('✅ Lightbox initialized');
-
-  // Feature-flagged modules
-  if (FEATURES.cardTilt) {
-    cardTilt.init();
-    console.log('✅ Card Tilt initialized');
-  }
-
-  if (FEATURES.dynamicShadows) {
-    dynamicShadows.init();
-    console.log('✅ Dynamic Shadows initialized');
-  }
-
-  // NEW: Initialize all additional features
-  navigation.init();
-  console.log('✅ Navigation initialized');
-
-  themeToggle.init();
-  console.log('✅ Theme Toggle initialized');
-
-  scrollAnimations.init();
-  console.log('✅ Scroll Animations initialized');
-
-  scrollToTop.init();
-  console.log('✅ Scroll to Top initialized');
-
-  if (FEATURES.cursorGlow) {
-    cursorGlow.init();
-    console.log('✅ Cursor Glow initialized');
-  }
-
-  projectFilters.init();
-  console.log('✅ Project Filters initialized');
-
-  helixProjects.init();
-  console.log('✅ Helix Projects initialized');
-
-  meshViewer.init();
-  console.log('✅ Mesh Viewer armed (loads on approach)');
-
-  crawlerDemo.init();
-  console.log('✅ Crawler Demo armed (loads on approach)');
-
-  if (FEATURES.waterRipple) {
-    waterRipple.init();
-    console.log('✅ Water Ripple initialized');
-  }
-
-  contactForm.init();
-  console.log('✅ Contact Form initialized');
-
-  if (FEATURES.starfield) {
-    starfield.init();
-  }
-
+  MODULES.forEach(({ name, module, flag }) => {
+    if (flag && !FEATURES[flag]) return;
+    try {
+      module.init();
+    } catch (err) {
+      console.error(`${name} failed to start:`, err);
+    }
+  });
   console.log('✨ Portfolio ready!');
 }
 
+// Split text and switch reveal states on now, while the loading screen
+// still hides the page, so nothing visibly reflows when it lifts.
+try {
+  scrollAnimations.prepare();
+} catch (err) {
+  console.error('Scroll Animations failed to prepare:', err);
+  document.documentElement.classList.remove('motion-ready');
+}
+
 /**
- * Initialize when DOM is ready
- * Use window.load to ensure loading screen shows properly
+ * Start when everything has loaded so the loading screen shows properly
  */
 window.addEventListener('load', () => {
   // Always scroll to top on page load
   window.scrollTo(0, 0);
-  
-  // Initialize loading screen FIRST (it will trigger other inits after completion)
+
+  // The loading screen starts the other modules once it has lifted
   loadingScreen.init(initializeApp);
-  console.log('✅ Loading Screen started');
 });
 
 // Also handle resize
@@ -112,11 +91,11 @@ window.addEventListener('resize', () => {
 });
 
 // Export for manual control if needed
-export { 
-  initializeApp, 
-  cardManager, 
-  lightbox, 
-  cardTilt, 
+export {
+  initializeApp,
+  cardManager,
+  lightbox,
+  cardTilt,
   dynamicShadows,
   navigation,
   themeToggle,
@@ -124,6 +103,7 @@ export {
   scrollAnimations,
   scrollToTop,
   cursorGlow,
+  pointerEffects,
   projectFilters,
   waterRipple,
   contactForm,

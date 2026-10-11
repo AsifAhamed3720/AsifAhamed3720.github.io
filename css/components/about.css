@@ -1,30 +1,29 @@
 /* =========================
    ABOUT SECTION
+   The paragraph reads as a lead: set in the display face, left-aligned.
 ========================= */
 .about-section {
   padding: 60px 0;
 }
 
 .about-content {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 860px;
 }
 
 .about-content > p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  margin-bottom: 40px;
-  color: var(--text-secondary);
-  opacity: 0;
-  transform: translateY(20px);
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.65rem);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  margin-bottom: 0;
+  text-wrap: pretty;
 }
 
 @media (max-width: 768px) {
   .about-section {
     padding: 40px 0;
-  }
-  
-  .about-content > p {
-    font-size: 1rem;
   }
 }

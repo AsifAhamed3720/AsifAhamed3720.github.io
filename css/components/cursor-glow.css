@@ -1,8 +1,11 @@
 /* =========================
    CURSOR GLOW
 ========================= */
+/* positioned by js/modules/cursor-glow.js with a transform from the top-left */
 .cursor-glow {
   position: fixed;
+  left: 0;
+  top: 0;
   width: 400px;
   height: 400px;
   border-radius: 50%;
@@ -16,8 +19,12 @@
   transform: translate(-50%, -50%);
   z-index: 0;
   mix-blend-mode: screen;
+  opacity: 0;
+  will-change: transform;
   transition: opacity 0.3s;
 }
+
+.cursor-glow.is-active { opacity: 1; }
 
 @media (max-width: 768px) {
   .cursor-glow {

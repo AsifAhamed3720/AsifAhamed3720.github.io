@@ -24,12 +24,10 @@
 
   h2 {
     font-size: 1.8rem;
-    margin-bottom: 30px;
   }
-  
-  h2::after {
-    width: 60px;
-    height: 3px;
+
+  .section-head {
+    margin-bottom: 30px;
   }
 
   /* Hide images on tablet */
@@ -70,8 +68,7 @@
   }
   
   h2 {
-    font-size: 1.5rem;
-    margin-bottom: 25px;
+    font-size: 1.6rem;
   }
 }
 
@@ -85,34 +82,15 @@
   .tech-tag,
   .filter-btn,
   .contact-link,
-  .project-card,
-  .status-badge {
+  .project-card {
     transition: none !important;
   }
   
-  /* Keep initial fade in and slide up animations */
+  /* Keep the initial fade in (cards slide up via motion.css) */
   body {
     animation: fadeIn 1s ease-in;
   }
-  
-  .hero-content {
-    animation: slideUp 1s ease both;
-  }
-  
-  .project-wrapper.visible {
-    animation: slideUp 0.8s ease both;
-  }
-  
-  /* Keep gradient text animation */
-  .gradient-text {
-    animation: gradientShift 3s ease infinite;
-  }
-  
-  /* Disable pulse animation */
-  .status-badge {
-    animation: none !important;
-  }
-  
+
   /* Remove 3D transforms */
   .project-card {
     transform: none !important;
@@ -137,11 +115,6 @@
   .filter-btn:hover,
   .contact-link:hover {
     transform: none !important;
-  }
-  
-  /* Keep floating elements but make them smaller */
-  .floating-element {
-    opacity: 0.5;
   }
 }
 

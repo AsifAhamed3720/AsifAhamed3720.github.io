@@ -2,9 +2,11 @@
  * Helix Projects Module
  * Spiral-staircase scroll choreography for the projects section.
  *
- * Each project card rises from below the viewport, orbits the starfield
- * column into a centered reading position, then spirals up and away as
- * the next card arrives. The starfield receives the morph/spin state so
+ * The first card flies in from behind the column while the section is
+ * still sliding into place, landing in the centered reading position just
+ * after the stage pins. From there each card spirals up and away as the
+ * next rises from below and orbits the starfield column into its place;
+ * the last card stays docked. The starfield receives the morph/spin state so
  * its stars assemble into the helical column that anchors the staircase.
  *
  * Desktop only — on mobile or reduced motion this module never activates
@@ -17,8 +19,10 @@ import starfield from './starfield.js';
 
 // ─── Tuning ───────────────────────────────────────────────────────────────────
 const HELIX_CONFIG = {
-  unitVh      : 140,   // scroll distance (vh) per card
-  lead        : 0.5,   // lead-in so the first card starts hidden below
+  unitVh      : 140,   // scroll distance (vh) per card-to-card transition
+  arriveAt    : 0.45,  // the first card sets off when the stage's top is this
+                       // far down the viewport (fraction of vh), before it pins
+  arriveVh    : 0.8,   // scroll distance (fraction of vh) for that whole flight
   depth       : 340,   // how far cards travel behind the column (px)
   rot         : 0.5,   // card tilt while circling (fraction of helix angle)
   dwell       : 0.55,  // 0 = constant speed, 1 = long pause at center
@@ -37,7 +41,8 @@ class HelixProjects {
     this.active = [];     // wrappers matching the current filter
     this.dotsBox = null;
     this.dots = [];
-    this.progress = 0;    // smoothed scroll progress through the section
+    this.pos = -1;        // smoothed staircase position: card i is centered at
+                          // pos = i, and -1 is the first card hidden below
     this.rafId = null;
     this.initialized = false;
   }
@@ -72,6 +77,21 @@ class HelixProjects {
     this.initialized = true;
   }
 
+  /**
+   * Document scroll position where card i (in the current filter) sits in
+   * the reading position, or null when the helix isn't running. The inverse
+   * of _targetPos. Links to the projects section aim at card 0: at the
+   * section's top that card is still mid-flight, small and off to the side.
+   * @param {number} i - Index among the active cards
+   */
+  cardScrollY(i) {
+    if (!this.initialized) return null;
+    const { arriveAt, arriveVh, unitVh } = HELIX_CONFIG;
+    const vh = window.innerHeight;
+    const top = this.scroller.getBoundingClientRect().top + window.scrollY;
+    return top + (arriveVh - arriveAt) * vh + i * (unitVh / 100) * vh;
+  }
+
   destroy() {
     if (this.rafId) cancelAnimationFrame(this.rafId);
     this.scroller?.classList.remove('helix-on');
@@ -96,27 +116,54 @@ class HelixProjects {
     this.active = list;
     // hide everything; the loop reveals the active cards on the path
     this.wrappers.forEach(w => { w.style.visibility = 'hidden'; });
-    this.scroller.style.height =
-      'calc(100vh + ' + (this._span() * HELIX_CONFIG.unitVh) + 'vh)';
+    this.scroller.style.height = 'calc(100vh + ' + this._pinnedVh() + 'vh)';
     this._rebuildDots();
   }
 
-  _span() {
-    return Math.max(this.active.length - 0.5 + HELIX_CONFIG.lead, 1);
+  // How long (vh) the stage stays pinned: the rest of the first card's flight
+  // (it starts before the pin) plus one transition per further card.
+  _pinnedVh() {
+    const { arriveAt, arriveVh, unitVh } = HELIX_CONFIG;
+    return (arriveVh - arriveAt) * 100 + Math.max(this.active.length - 1, 0) * unitVh;
+  }
+
+  /**
+   * Staircase position for the current scroll. The first card's flight
+   * (-1 → 0) is squeezed into a short stretch that starts before the stage
+   * pins; each later card takes a full unit.
+   * @param {number} top - The scroller's top edge relative to the viewport
+   * @param {number} vh - Viewport height
+   */
+  _targetPos(top, vh) {
+    const { arriveAt, arriveVh, unitVh } = HELIX_CONFIG;
+    const scrolled = arriveAt * vh - top;  // px since the first card set off
+    const arrivePx = arriveVh * vh;
+    if (scrolled <= arrivePx) return -1 + clamp(scrolled / arrivePx, 0, 1);
+    return Math.min((scrolled - arrivePx) / (unitVh / 100 * vh), this.active.length - 1);
   }
 
   // ── Progress dots ──────────────────────────────────────────────────────────
   _buildDots() {
     this.dotsBox = document.createElement('div');
     this.dotsBox.className = 'helix-dots';
-    this.dotsBox.setAttribute('aria-hidden', 'true');
+    this.dotsBox.setAttribute('role', 'group');
+    this.dotsBox.setAttribute('aria-label', 'Jump to project');
     this.stage.appendChild(this.dotsBox);
   }
 
+  // One button per active card: it shows the project's name on hover and
+  // scrolls the staircase to that card's reading position.
   _rebuildDots() {
-    this.dotsBox.innerHTML = '';
-    this.dots = this.active.map(() => {
-      const dot = document.createElement('span');
+    this.dotsBox.textContent = '';
+    this.dots = this.active.map((wrapper, i) => {
+      const title = wrapper.querySelector('h3')?.textContent.trim() || `Project ${i + 1}`;
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.dataset.title = title;
+      dot.setAttribute('aria-label', title);
+      dot.addEventListener('click', () => {
+        window.scrollTo({ top: this.cardScrollY(i), behavior: 'smooth' });
+      });
       this.dotsBox.appendChild(dot);
       return dot;
     });
@@ -140,23 +187,20 @@ class HelixProjects {
     const vw = window.innerWidth;
     const rect = this.scroller.getBoundingClientRect();
 
-    // smoothed progress through the section
-    const denom = this.scroller.offsetHeight - vh;
-    const target = denom > 0 ? clamp(-rect.top / denom, 0, 1) : 0;
-    this.progress += (target - this.progress) * HELIX_CONFIG.ease;
-    if (Math.abs(target - this.progress) < 0.0004) this.progress = target;
-
-    const span = this._span();
+    // smoothed position along the staircase
+    const target = this._targetPos(rect.top, vh);
+    this.pos += (target - this.pos) * HELIX_CONFIG.ease;
+    if (Math.abs(target - this.pos) < 0.002) this.pos = target;
 
     // hand the starfield its column state (it eases the morph itself)
     const enter = clamp((vh - rect.top) / (vh * 0.85), 0, 1);
     const exit  = clamp(rect.bottom / (vh * 0.9), 0, 1);
     starfield.helixMorphTarget = Math.min(enter, exit);
-    starfield.helixSpinPhase =
-      this.progress * span * HELIX_CONFIG.spinPerCard * Math.PI * 2;
+    starfield.helixSpinPhase = this.pos * HELIX_CONFIG.spinPerCard * Math.PI * 2;
 
+    const sh = this.stage.clientHeight;   // the stage sits below the fixed nav
     const R  = Math.min(vw * 0.36, 460);  // horizontal orbit radius
-    const Hy = vh * 0.56;                 // vertical travel from center
+    const Hy = sh * 0.56;                 // vertical travel from center
     const N  = this.active.length;
 
     let activeIdx = 0;
@@ -167,7 +211,7 @@ class HelixProjects {
       const card = wrapper.querySelector('.project-card');
 
       // u: -1 = hidden below, 0 = centered, +1 = hidden above
-      let u = this.progress * span - HELIX_CONFIG.lead - 0.5 - i;
+      let u = this.pos - i;
       if (i === N - 1) u = Math.min(u, 0); // last card docks at center
 
       const au = Math.abs(u);
@@ -191,7 +235,7 @@ class HelixProjects {
       const cardH = card ? card.offsetHeight : 0;
       const cardW = card ? card.offsetWidth : 0;
       const needW = cardW + 2 * (CARD_CONFIG.edgeGap + CARD_CONFIG.imageWidth) + 24;
-      const fitH = cardH > 0 ? Math.min(1, (vh * 0.88) / cardH) : 1;
+      const fitH = cardH > 0 ? Math.min(1, (sh * 0.92) / cardH) : 1;
       const fitW = cardW > 0 ? Math.min(1, vw / needW) : 1;
       const fit = Math.min(fitH, fitW);
 
@@ -218,7 +262,11 @@ class HelixProjects {
     }
 
     for (let d = 0; d < this.dots.length; d++) {
-      this.dots[d].classList.toggle('active', d === activeIdx);
+      const on = d === activeIdx;
+      if (this.dots[d].classList.contains('active') === on) continue;
+      this.dots[d].classList.toggle('active', on);
+      if (on) this.dots[d].setAttribute('aria-current', 'true');
+      else this.dots[d].removeAttribute('aria-current');
     }
   }
 }

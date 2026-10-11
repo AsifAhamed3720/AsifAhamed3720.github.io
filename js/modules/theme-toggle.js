@@ -1,12 +1,18 @@
 /**
  * Theme Toggle Module
- * Handles dark/light mode switching with localStorage persistence
+ * Switches dark/light mode and remembers the choice. Where the browser
+ * supports view transitions, the new theme spreads out from the button as a
+ * circle; elsewhere, or with reduced motion, it switches in place.
  */
+
+import { prefersReducedMotion } from '../utils.js';
+
+const WIPE_MS = 700;
+const WIPE_EASING = 'cubic-bezier(.7, 0, .2, 1)'; // --ease-in-out
 
 class ThemeToggle {
   constructor() {
-    this.themeToggleDesktop = null;
-    this.themeToggleMobile = null;
+    this.buttons = [];
     this.html = document.documentElement;
     this.initialized = false;
   }
@@ -17,26 +23,21 @@ class ThemeToggle {
   init() {
     if (this.initialized) return;
 
-    this.themeToggleDesktop = document.getElementById('theme-toggle');
-    this.themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    this.buttons = [
+      document.getElementById('theme-toggle'),
+      document.getElementById('theme-toggle-mobile')
+    ].filter(Boolean);
 
-    if (!this.themeToggleDesktop || !this.themeToggleMobile) {
+    if (this.buttons.length === 0) {
       console.warn('ThemeToggle: Toggle buttons not found');
       return;
     }
 
-    // Get current theme (already set by inline script in head)
-    const currentTheme = this.html.getAttribute('data-theme') || 'dark';
-    this.updateThemeIcon(currentTheme);
+    // Current theme is already set by the inline script in <head>
+    this.updateButtons(this.html.getAttribute('data-theme') || 'dark', false);
 
-    // Desktop theme toggle
-    this.themeToggleDesktop.addEventListener('click', () => {
-      this.toggleTheme();
-    });
-
-    // Mobile theme toggle
-    this.themeToggleMobile.addEventListener('click', () => {
-      this.toggleTheme();
+    this.buttons.forEach(button => {
+      button.addEventListener('click', () => this.toggleTheme(button));
     });
 
     this.initialized = true;
@@ -44,41 +45,59 @@ class ThemeToggle {
 
   /**
    * Toggle between dark and light theme
+   * @param {HTMLElement} origin - The button pressed; the wipe starts there
    */
-  toggleTheme() {
-    const currentTheme = this.html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    this.html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    this.updateThemeIcon(newTheme);
+  toggleTheme(origin) {
+    const next = this.html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+
+    const apply = () => {
+      this.html.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) { /* storage unavailable */ }
+      this.updateButtons(next, true);
+    };
+
+    if (!document.startViewTransition || prefersReducedMotion()) {
+      apply();
+      return;
+    }
+
+    const rect = origin.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+    // colour transitions would replay inside the circle, so the new theme
+    // is captured fully applied (see .theme-switching in theme-toggle.css)
+    this.html.classList.add('theme-switching');
+    const transition = document.startViewTransition(apply);
+
+    transition.ready.then(() => {
+      this.html.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: WIPE_MS, easing: WIPE_EASING, pseudoElement: '::view-transition-new(root)' }
+      );
+    }).catch(() => { /* skipped transition: the theme still applied */ });
+
+    transition.finished.finally(() => this.html.classList.remove('theme-switching'));
   }
 
   /**
-   * Update theme toggle icon based on current theme
-   * @param {string} theme - 'dark' or 'light'
+   * Name the action for screen readers and turn the new icon into place.
+   * Which icon shows is decided by theme-toggle.css from data-theme.
+   * @param {string} theme - The theme now active, 'dark' or 'light'
+   * @param {boolean} animate - Turn the new icon into place
    */
-  updateThemeIcon(theme) {
-    const iconHTML = theme === 'dark' ? `
-      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-      </svg>
-    ` : `
-      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    `;
-    
-    this.themeToggleDesktop.innerHTML = iconHTML;
-    this.themeToggleMobile.innerHTML = iconHTML;
+  updateButtons(theme, animate) {
+    const label = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+
+    this.buttons.forEach(button => {
+      button.setAttribute('aria-label', label);
+      if (animate) {
+        button.classList.remove('icon-turn');
+        void button.offsetWidth; // restart the icon animation
+        button.classList.add('icon-turn');
+      }
+    });
   }
 }
 

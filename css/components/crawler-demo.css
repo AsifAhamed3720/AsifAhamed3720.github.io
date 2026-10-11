@@ -7,7 +7,7 @@
 .crawler-demo {
   margin: 18px 0;
   border: 1px solid rgba(167, 139, 250, 0.15);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 14px;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(167, 139, 250, 0.06), rgba(10, 10, 10, 0) 70%);
@@ -31,7 +31,7 @@
   color: var(--text-muted);
   background: rgba(20, 20, 20, 0.5);
   border: 1px solid rgba(167, 139, 250, 0.2);
-  border-radius: 999px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
@@ -50,7 +50,7 @@
   color: var(--text-muted);
 }
 .cd-budget-input { width: 90px; accent-color: var(--primary-blue); cursor: pointer; }
-.cd-budget-val { color: var(--primary-blue); font-weight: 700; }
+.cd-budget-val { font-family: var(--font-mono); color: var(--primary-blue); font-weight: 700; }
 
 .cd-run {
   margin-left: auto;
@@ -60,7 +60,7 @@
   color: #fff;
   background: linear-gradient(135deg, rgba(77, 163, 255, 0.35), rgba(143, 123, 255, 0.35));
   border: 1px solid rgba(143, 123, 255, 0.5);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.1s ease;
 }
@@ -76,7 +76,7 @@
 
 .cd-panel {
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 8px 10px 10px;
   background: rgba(0, 0, 0, 0.2);
 }
@@ -88,7 +88,7 @@
   margin-bottom: 4px;
 }
 .cd-panel-name { font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); }
-.cd-panel-prec { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.cd-panel-prec { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
 .cd-graph { width: 100%; height: auto; display: block; }
 
@@ -158,19 +158,48 @@
   color: var(--text-muted);
 }
 .cd-metrics-label {
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 700;
   color: var(--primary-blue);
 }
-.cd-metric b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.cd-metric b { font-family: var(--font-mono); color: var(--text-primary); font-variant-numeric: tabular-nums; }
 .cd-metric-note { font-style: italic; }
 
-/* ── Light theme ──────────────────────────────────────────── */
+/* ── Light theme ──────────────────────────────────────────────
+   The fills above are dark washes that turn muddy grey on a white card,
+   and the white labels vanish; these match the mesh viewer's light buttons. */
+[data-theme="light"] .crawler-demo {
+  border-color: rgba(124, 58, 237, 0.18);
+  background: radial-gradient(ellipse at 50% 0%, rgba(124, 58, 237, 0.05), rgba(255, 255, 255, 0) 70%);
+}
+[data-theme="light"] .cd-topic {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+[data-theme="light"] .cd-topic:hover { color: var(--text-primary); border-color: rgba(124, 58, 237, 0.45); }
+[data-theme="light"] .cd-topic.active {
+  color: #ffffff;
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+[data-theme="light"] .cd-run {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+  border-color: transparent;
+}
+[data-theme="light"] .cd-panel {
+  border-color: rgba(124, 58, 237, 0.12);
+  background: rgba(124, 58, 237, 0.035);
+}
+[data-theme="light"] .cd-edge { stroke: rgba(124, 58, 237, 0.22); }
 [data-theme="light"] .cd-node { fill: rgba(255, 255, 255, 0.9); }
 [data-theme="light"] .cd-node.fetched.irrelevant {
   fill: rgba(150, 150, 160, 0.6); stroke: rgba(120, 120, 130, 0.7);
 }
+[data-theme="light"] .cd-bar { background: rgba(0, 0, 0, 0.07); }
+[data-theme="light"] .cd-metrics { border-top-color: rgba(0, 0, 0, 0.08); }
 
 /* ── Mobile: stack the two panels ─────────────────────────── */
 @media (max-width: 600px) {

@@ -1,0 +1,30 @@
+/* =========================
+   FONTS (self-hosted, variable, OFL-licensed)
+   Fraunces      — editorial display serif (headings, wordmark)
+   JetBrains Mono — technical mono (dates, tags, metrics, labels)
+   Body text keeps the system UI sans (fast, no extra file).
+========================= */
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/fraunces.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/fraunces-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono.woff2") format("woff2");
+}

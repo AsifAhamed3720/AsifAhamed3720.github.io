@@ -1,81 +1,51 @@
 /* =========================
    THEME TOGGLE
+   A square icon button inside the nav (desktop) and the mobile bar.
 ========================= */
-
-/* Desktop theme toggle - fixed top right */
-.theme-toggle-desktop {
-  position: fixed;
-  top: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  background: var(--bg-card);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  color: var(--text-primary);
-  cursor: pointer;
+.theme-toggle {
+  position: relative;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 1001;
-  box-shadow: 0 4px 15px var(--shadow-color);
-}
-
-.theme-toggle-desktop:hover {
-  transform: scale(1.1) rotate(10deg);
-  border-color: var(--primary-blue);
-  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.3);
-}
-
-.theme-toggle-desktop svg {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease;
-}
-
-.theme-toggle-desktop:active svg {
-  transform: rotate(180deg);
-}
-
-/* Mobile theme toggle - in nav bar */
-.theme-toggle-mobile {
-  width: 40px;
-  height: 40px;
+  padding: 0;
   background: transparent;
-  border: none;
-  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   color: var(--text-primary);
   cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--primary-blue);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* The button shows the way to the other theme: a sun in dark mode, a moon
+   in light. Picked by CSS from data-theme (set before first paint by the
+   inline script in <head>), so the right icon shows from the start. */
+[data-theme="light"] .theme-toggle .ti-sun,
+:root:not([data-theme="light"]) .theme-toggle .ti-moon {
   display: none;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: none;
 }
 
-.theme-toggle-mobile:hover {
-  background: rgba(167, 139, 250, 0.1);
-}
-
-.theme-toggle-mobile svg {
-  width: 20px;
-  height: 20px;
-}
+/* the new icon turns into place: the sun spins its rays in, the moon swings in */
+.theme-toggle.icon-turn .ti-sun { animation: sun-turn .8s var(--ease-out); }
+.theme-toggle.icon-turn .ti-moon { animation: moon-swing .9s var(--ease-spring); }
+@keyframes sun-turn { from { transform: rotate(-120deg) scale(.6); opacity: .3; } }
+@keyframes moon-swing { from { transform: rotate(70deg) scale(.6); opacity: .3; } }
 
 @media (max-width: 768px) {
   .theme-toggle-desktop {
     display: none !important;
-  }
-  
-  .theme-toggle-mobile {
-    display: flex !important;
-    position: static;
-    width: 40px;
-    height: 40px;
-    top: auto;
-    right: auto;
   }
 }
 
@@ -83,8 +53,19 @@
   .theme-toggle-mobile {
     display: none !important;
   }
+}
 
-  .theme-toggle-desktop {
-    display: flex !important;
-  }
+/* Theme change: the new theme spreads out from the toggle as a circle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* while the wipe runs, colours land at once so the circle reveals the
+   finished theme, not one mid-fade */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
 }

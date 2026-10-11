@@ -35,37 +35,46 @@ class CursorGlow {
     }
 
     this.setupMouseTracking();
-    this.startAnimation();
 
     this.initialized = true;
   }
 
   /**
-   * Track mouse position
+   * Track mouse position. The glow stays hidden until the pointer first
+   * moves, so it never sits parked in the corner.
    */
   setupMouseTracking() {
     document.addEventListener('mousemove', (e) => {
       this.mouseX = e.clientX;
       this.mouseY = e.clientY;
-    });
+      if (!this.glow.classList.contains('is-active')) {
+        this.glowX = this.mouseX;
+        this.glowY = this.mouseY;
+        this.glow.classList.add('is-active');
+      }
+      this.startAnimation();
+    }, { passive: true });
   }
 
   /**
-   * Animate glow to follow mouse with smooth easing
+   * Ease the glow toward the mouse. It moves by transform (no layout work,
+   * no layout shift) and the loop sleeps once the glow has caught up.
    */
   startAnimation() {
-    const animate = () => {
-      if (!document.hidden) {
-        this.glowX += (this.mouseX - this.glowX) * this.speed;
-        this.glowY += (this.mouseY - this.glowY) * this.speed;
+    if (this.animationId) return;
 
-        this.glow.style.left = this.glowX + 'px';
-        this.glow.style.top = this.glowY + 'px';
-      }
-      this.animationId = requestAnimationFrame(animate);
+    const animate = () => {
+      const dx = this.mouseX - this.glowX;
+      const dy = this.mouseY - this.glowY;
+      this.glowX += dx * this.speed;
+      this.glowY += dy * this.speed;
+      this.glow.style.transform =
+        `translate3d(${this.glowX.toFixed(1)}px, ${this.glowY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+
+      this.animationId = Math.abs(dx) + Math.abs(dy) > 0.2 ? requestAnimationFrame(animate) : null;
     };
-    
-    animate();
+
+    this.animationId = requestAnimationFrame(animate);
   }
 
   /**

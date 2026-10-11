@@ -26,7 +26,7 @@ export const SHADOW_CONFIG = {
     shadowSpread: -5,
     minOpacity: 0.2,
     maxOpacity: 0.7,
-    maxGlowOpacity: 0.25,
+    maxGlowOpacity: 0.12,
     lightSourceDistance: {
       close: 400,
       medium: 800
@@ -61,6 +61,7 @@ export const FEATURES = {
   lightbox: true,
   imageHoverEffects: true,
   cursorGlow: true,
+  pointerEffects: true,
   waterRipple: true,
   starfield: true
 };

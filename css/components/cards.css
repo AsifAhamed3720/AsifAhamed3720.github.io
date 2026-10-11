@@ -10,14 +10,20 @@
   min-height: 300px;
   width: 100%;
   perspective: 1000px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.8s var(--ease-out), transform 0.9s var(--ease-out);
 }
 
-.project-wrapper.visible {
-  opacity: 1;
-  transform: translateY(0);
+/* Stacked layout: cards wait below until scroll-animations.js marks them
+   .visible. Only with .motion-ready, so without the script they just show;
+   in helix mode helix-projects.js drives the cards instead. */
+.motion-ready .helix-scroll:not(.helix-on) .project-wrapper:not(.visible) {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* scrolling back up, a card comes down from above instead */
+.motion-ready .helix-scroll:not(.helix-on) .project-wrapper.from-above:not(.visible) {
+  transform: translateY(-30px);
 }
 
 .project-card {
@@ -70,59 +76,24 @@
     inset 0 1px 0 rgba(0, 0, 0, 0.03);
 }
 
-/* Animated gradient border on hover */
+/* Hover: a calm violet hairline instead of an animated rainbow border */
 .project-card::after {
   content: "";
   position: absolute;
-  inset: -2px;
-  border-radius: 16px;
-  padding: 2px;
-  background: linear-gradient(90deg, 
-    #c084fc 0%,
-    #60a5fa 15%,
-    #a78bfa 30%,
-    #f472b6 45%,
-    #8b5cf6 60%,
-    #3b82f6 75%,
-    #c084fc 90%,
-    #60a5fa 100%
-  );
-  background-size: 300% 100%;
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--accent-line);
   opacity: 0;
   pointer-events: none;
-  z-index: -1;
-  animation: gradientShift 10s linear infinite;
-  /* The border is invisible until hover, so don't animate it until then —
-     saves continuously animating 4-5 off-screen pseudo-elements. */
-  animation-play-state: paused;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.4s ease;
 }
 
 .project-card:hover {
-  box-shadow:
-    0 25px 50px rgba(0, 0, 0, 0.8),
-    0 0 60px rgba(167, 139, 250, 0.3),
-    0 0 120px rgba(167, 139, 250, 0.15);
-  border-color: transparent;
-}
-
-[data-theme="light"] .project-card:hover {
-  box-shadow:
-    0 25px 50px var(--shadow-color);
   border-color: transparent;
 }
 
 .project-card:hover::after {
   opacity: 1;
-  animation-play-state: running;
 }
 
 /* Gradient overlay effect */
@@ -158,11 +129,12 @@
 
 /* Project Badges */
 .project-badge {
-  padding: 6px 14px;
-  background: linear-gradient(135deg, rgba(77, 163, 255, 0.2), rgba(143, 123, 255, 0.2));
+  padding: 5px 10px;
+  background: var(--accent-soft);
   border: 1px solid rgba(77, 163, 255, 0.3);
-  border-radius: 20px;
-  font-size: 0.75rem;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--primary-blue);
   text-transform: uppercase;
@@ -186,7 +158,9 @@
 /* Project Date */
 .project-date {
   color: var(--primary-blue);
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
   font-weight: 500;
   margin-top: 6px;
   display: inline-flex;
@@ -195,13 +169,24 @@
 }
 
 .project-date::before {
-  content: "📅";
-  font-size: 0.9rem;
+  content: "";
+  width: 14px;
+  height: 1px;
+  background: currentColor;
+  opacity: .7;
 }
 
 .project-card > p {
   margin-bottom: 20px;
   line-height: 1.7;
+}
+
+/* Inline metric emphasis in a project summary (e.g. "0.954 / 0.856 / 0.901") */
+.project-card > p strong {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--primary-blue);
 }
 
 /* Illustration disclaimer under interactive demos */
@@ -236,12 +221,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(167, 139, 250, 0.1);
-  border-radius: 50%;
+  background: var(--accent-soft);
+  border-radius: var(--radius-xs);
   color: var(--primary-blue);
   font-size: 0.7rem;
   font-weight: 700;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 /* Tech Stack */
@@ -259,8 +244,9 @@
   padding: 6px 14px;
   background: rgba(167, 139, 250, 0.08);
   border: 1px solid rgba(167, 139, 250, 0.15);
-  border-radius: 6px;
-  font-size: 0.8rem;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
   color: var(--text-secondary);
   transition: all 0.3s ease;
   font-weight: 500;
@@ -273,9 +259,10 @@
   color: var(--primary-blue);
 }
 
-/* Title glow on hover */
+/* Title steps up on hover: brighter on dark, deeper on light (a fixed white
+   here made titles vanish on the light theme's white cards) */
 .project-card:hover h3 {
-  color: #ffffff;
+  color: var(--text-strong);
 }
 
 /* Card z-index positioning */
@@ -323,7 +310,7 @@
 @media (max-width: 480px) {
   .project-card {
     padding: 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
   }
 
   h3 {

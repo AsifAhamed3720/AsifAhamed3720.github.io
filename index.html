@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" href="images/favicon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="Asif Ahamed Siddique — AI & ML engineer specializing in 3D reconstruction, applied machine learning, and full-stack systems.">
   <title>Asif Ahamed Siddique | AI & ML Engineer</title>
+
+  <!-- Self-hosted display font: preload so headings don't flash -->
+  <link rel="preload" href="fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Open Graph / social preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Asif Ahamed Siddique | AI & ML Engineer">
+  <meta property="og:description" content="3D reconstruction, applied machine learning, and full-stack systems — with interactive project demos.">
+  <meta name="twitter:card" content="summary_large_image">
   
   <!-- Critical CSS to prevent flash -->
   <style>
@@ -74,12 +86,16 @@
   <!-- Loading Screen -->
   <div id="loading-screen" class="loading-screen">
     <div class="loading-content">
-      <div class="loading-logo">
-        <span class="gradient-text">AS</span>
-      </div>
-      <div class="loading-bar">
-        <div class="loading-progress"></div>
-      </div>
+      <svg class="loading-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <g class="bm-edges">
+          <path pathLength="1" d="M16 7 L8 25"/><path pathLength="1" d="M16 7 L24 25"/><path pathLength="1" d="M11 18 L21 18"/>
+        </g>
+        <g class="bm-nodes">
+          <circle cx="16" cy="7" r="3"/><circle cx="8" cy="25" r="2.4"/><circle cx="24" cy="25" r="2.4"/>
+          <circle cx="11" cy="18" r="2"/><circle cx="21" cy="18" r="2"/>
+        </g>
+      </svg>
+      <p class="loading-name">Asif Ahamed Siddique</p>
     </div>
   </div>
 
@@ -89,19 +105,29 @@
   <!-- Navigation Header -->
   <nav id="main-nav" class="main-nav">
     <div class="nav-content">
-      <a href="#" class="nav-logo">
-        <span class="gradient-text">Asif Ahamed</span>
+      <a href="#" class="nav-logo" aria-label="Asif Ahamed — home">
+        <svg class="brand-mark" viewBox="0 0 32 32" width="24" height="24" aria-hidden="true" focusable="false">
+          <g class="bm-edges" fill="none" stroke-linecap="round">
+            <path d="M16 7 L8 25"/><path d="M16 7 L24 25"/><path d="M11 18 L21 18"/>
+          </g>
+          <g class="bm-nodes">
+            <circle cx="16" cy="7" r="3"/><circle cx="8" cy="25" r="2.4"/><circle cx="24" cy="25" r="2.4"/>
+            <circle cx="11" cy="18" r="2"/><circle cx="21" cy="18" r="2"/>
+          </g>
+        </svg>
+        <span class="brand-name">Asif Ahamed</span>
       </a>
       <div class="nav-links">
         <a href="#about" class="nav-link">About</a>
         <a href="#skills" class="nav-link">Skills</a>
         <a href="#projects" class="nav-link">Projects</a>
         <a href="#contact" class="nav-link">Contact</a>
-        <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" class="nav-link cta-button">Download CV</a>
-      </div>
-      <div class="mobile-nav-controls">
-        <button id="theme-toggle-mobile" class="theme-toggle theme-toggle-mobile" aria-label="Toggle theme">
-          <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <span class="nav-ind" aria-hidden="true"></span>
+        <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" rel="noopener" class="btn btn-ghost btn-sm nav-cv">Download CV</a>
+        <!-- Theme toggle (desktop) -->
+        <button id="theme-toggle" class="theme-toggle theme-toggle-desktop" aria-label="Toggle theme">
+          <!-- both icons ship; theme-toggle.css shows the one for the other theme -->
+          <svg class="ti-sun" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -111,6 +137,28 @@
             <line x1="21" y1="12" x2="23" y2="12"></line>
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="ti-moon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="mobile-nav-controls">
+        <button id="theme-toggle-mobile" class="theme-toggle theme-toggle-mobile" aria-label="Toggle theme">
+          <!-- both icons ship; theme-toggle.css shows the one for the other theme -->
+          <svg class="ti-sun" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="ti-moon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
         <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
@@ -126,65 +174,54 @@
       <a href="#skills" class="mobile-menu-link">Skills</a>
       <a href="#projects" class="mobile-menu-link">Projects</a>
       <a href="#contact" class="mobile-menu-link">Contact</a>
-      <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" class="mobile-menu-link">Download CV</a>
+      <a href="Files/Asif_Ahamed_Siddique_resume.pdf" target="_blank" rel="noopener" class="mobile-menu-link">Download CV</a>
     </div>
+    <!-- reading progress along the bottom edge of the bar -->
+    <div class="nav-progress" aria-hidden="true"></div>
   </nav>
-
-  <!-- Theme Toggle (Desktop Only) -->
-  <button id="theme-toggle" class="theme-toggle theme-toggle-desktop" aria-label="Toggle theme">
-    <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </button>
 
   <!-- ===== HERO ===== -->
   <section class="hero-section">
     <div class="hero-content">
       <h1 class="hero-title">
-        <span class="gradient-text" data-text="Asif Ahamed Siddique"></span>
+        <span class="gradient-text">Asif Ahamed Siddique</span>
       </h1>
       <p class="hero-subtitle">
-        AI & ML Engineer · Applied Artificial Intelligence
+        AI &amp; ML Engineer · Applied Artificial Intelligence
       </p>
       <p class="hero-description">
         BSc (Hons) Computer Science with Artificial Intelligence<br>
         University of Nottingham Malaysia
       </p>
-      
+
       <div class="hero-cta">
-        <a href="#projects" class="cta-primary">
+        <a href="#projects" class="btn btn-primary cta-primary">
           <span>View My Work</span>
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <svg class="arrow" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
           </svg>
         </a>
-        <a href="#contact" class="cta-secondary">
+        <a href="#contact" class="btn btn-ghost cta-secondary">
           <span>Get in Touch</span>
         </a>
       </div>
     </div>
-    <div class="hero-decoration">
-      <div class="floating-element"></div>
-      <div class="floating-element"></div>
-      <div class="floating-element"></div>
-    </div>
+    <a href="#about" class="scroll-cue" aria-label="Scroll to About">
+      <span class="scroll-cue-line"></span>
+    </a>
   </section>
 
   <!-- ===== ABOUT ===== -->
   <section id="about" class="about-section">
-    <h2>About Me</h2>
+    <header class="section-head">
+      <span class="section-path" data-scramble aria-hidden="true">~/about</span>
+      <h2 data-split>About Me</h2>
+      <span class="section-rule" aria-hidden="true"></span>
+    </header>
     <div class="about-content">
-      <p>
-        I'm an aspiring AI & ML Engineer passionate about leveraging artificial intelligence 
+      <p data-split="blur">
+        I'm an aspiring AI & ML Engineer passionate about leveraging artificial intelligence
         to solve complex real-world problems. With expertise spanning computer vision, 
         full-stack development, and intelligent systems, I focus on building solutions 
         that make a tangible impact.
@@ -194,7 +231,11 @@
 
   <!-- ===== SKILLS & TECHNOLOGIES ===== -->
   <section id="skills" class="skills-section">
-    <h2>Skills & Technologies</h2>
+    <header class="section-head">
+      <span class="section-path" data-scramble aria-hidden="true">~/skills</span>
+      <h2 data-split>Skills &amp; Technologies</h2>
+      <span class="section-rule" aria-hidden="true"></span>
+    </header>
     <div class="skills-container">
       <div class="skill-category-large">
         <div class="skill-category-header">
@@ -274,15 +315,20 @@
 
   <!-- ===== PROJECTS ===== -->
   <section id="projects">
-    <h2>Featured Projects</h2>
-    
-    <!-- Filter Buttons -->
-    <div class="filter-container">
-      <button class="filter-btn active" data-filter="all">All Projects</button>
-      <button class="filter-btn" data-filter="compvision">Computer Vision</button>
-      <button class="filter-btn" data-filter="web">Web Development</button>
-      <button class="filter-btn" data-filter="mobile">Mobile</button>
-      <button class="filter-btn" data-filter="ai-ml">AI/ML</button>
+    <header class="section-head">
+      <span class="section-path" data-scramble aria-hidden="true">~/projects</span>
+      <h2 data-split>Featured Projects</h2>
+      <span class="section-rule" aria-hidden="true"></span>
+    </header>
+
+    <!-- Filter bar: a segmented control; the sliding block is positioned by project-filters.js -->
+    <div class="filter-container" role="group" aria-label="Filter projects">
+      <span class="filter-ind" aria-hidden="true"></span>
+      <button class="filter-btn active" data-filter="all" aria-pressed="true">All Projects</button>
+      <button class="filter-btn" data-filter="compvision" aria-pressed="false">Computer Vision</button>
+      <button class="filter-btn" data-filter="web" aria-pressed="false">Web Development</button>
+      <button class="filter-btn" data-filter="mobile" aria-pressed="false">Mobile</button>
+      <button class="filter-btn" data-filter="ai-ml" aria-pressed="false">AI/ML</button>
     </div>
 
     <!-- Helix showcase: on desktop the cards spiral around the starfield
@@ -525,33 +571,13 @@
         </div>
 
         <p>
-          AI-powered web crawler designed to autonomously discover and prioritize
-          topic-relevant web pages under a fixed crawl budget. The system models
-          web crawling as a sequential decision-making problem using semantic relevance
-          and adaptive prioritization.
+          An AI-powered web crawler that seeks out the most relevant pages on a topic while
+          staying within a fixed budget of pages to visit. Rather than blindly following every
+          link, it uses Sentence-BERT language embeddings to judge how relevant each page and
+          link is, prioritizes the most promising ones, and keeps learning as it crawls to
+          sharpen its judgment. Across 25 test runs it averaged <strong data-odometer>95%</strong> precision,
+          consistently outperforming standard breadth-first and keyword-based crawlers.
         </p>
-
-        <!-- Interactive crawl-race demo (js/modules/crawler-demo.js) -->
-        <div class="crawler-demo" id="crawler-demo" aria-label="Interactive web crawler demonstration"></div>
-
-        <div class="project-highlights">
-          <div class="highlight-item">
-            <span class="highlight-icon">✓</span>
-            <span>Used Sentence-BERT embeddings to semantically score page relevance and anchor text</span>
-          </div>
-          <div class="highlight-item">
-            <span class="highlight-icon">✓</span>
-            <span>Integrated a pretrained QA model to extract concise, query-focused snippets</span>
-          </div>
-          <div class="highlight-item">
-            <span class="highlight-icon">✓</span>
-            <span>Implemented greedy, budget-aware prioritization for near-optimal crawl selection</span>
-          </div>
-          <div class="highlight-item">
-            <span class="highlight-icon">✓</span>
-            <span>Outperformed breadth-first and TF-IDF-based focused crawling baselines</span>
-          </div>
-        </div>
 
         <div class="tech-stack">
           <span class="tech-tag">Python</span>
@@ -559,6 +585,9 @@
           <span class="tech-tag">Transformers</span>
           <span class="tech-tag">Intelligent Agents</span>
         </div>
+
+        <!-- Interactive crawl-race demo (js/modules/crawler-demo.js) -->
+        <div class="crawler-demo" id="crawler-demo" aria-label="Interactive web crawler demonstration"></div>
       </div>
     </div>
 
@@ -568,7 +597,11 @@
 
   <!-- ===== CONTACT ===== -->
   <section id="contact" class="contact-section">
-    <h2>Let's Connect</h2>
+    <header class="section-head">
+      <span class="section-path" data-scramble aria-hidden="true">~/contact</span>
+      <h2 data-split>Let's Connect</h2>
+      <span class="section-rule" aria-hidden="true"></span>
+    </header>
     <p class="contact-intro">
       Interested in collaboration or have a project in mind? Feel free to reach out!
     </p>
@@ -598,7 +631,7 @@
         <textarea id="message" name="message" rows="5" required placeholder="Your message here..."></textarea>
       </div>
       
-      <button type="submit" class="submit-btn" id="submit-btn">Send Message</button>
+      <button type="submit" class="btn btn-primary submit-btn" id="submit-btn">Send Message</button>
     </form>
     
     <!-- Social Links -->
@@ -630,7 +663,7 @@
 
   <!-- ===== SCROLL TO TOP ===== -->
   <button id="scroll-to-top" class="scroll-to-top" aria-label="Scroll to top">
-    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <polyline points="18 15 12 9 6 15"></polyline>
     </svg>
   </button>
@@ -645,7 +678,18 @@
   <footer class="main-footer">
     <div class="footer-content">
       <div class="footer-section">
-        <h3 class="gradient-text">Asif Ahamed Siddique</h3>
+        <h3 class="footer-brand">
+          <svg class="brand-mark" viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false">
+            <g class="bm-edges" fill="none" stroke-linecap="round">
+              <path d="M16 7 L8 25"/><path d="M16 7 L24 25"/><path d="M11 18 L21 18"/>
+            </g>
+            <g class="bm-nodes">
+              <circle cx="16" cy="7" r="3"/><circle cx="8" cy="25" r="2.4"/><circle cx="24" cy="25" r="2.4"/>
+              <circle cx="11" cy="18" r="2"/><circle cx="21" cy="18" r="2"/>
+            </g>
+          </svg>
+          Asif Ahamed Siddique
+        </h3>
         <p>AI & ML Engineer passionate about building intelligent systems</p>
       </div>
       <div class="footer-section">

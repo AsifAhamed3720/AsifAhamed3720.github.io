@@ -190,7 +190,7 @@ class DynamicShadows {
     card.style.setProperty('--shadow-blur', '40px');
     card.style.setProperty('--shadow-spread', '0px');
     card.style.setProperty('--shadow-opacity', '0.5');
-    card.style.setProperty('--glow-opacity', '0.15');
+    card.style.setProperty('--glow-opacity', '0.08');
   }
 }
 

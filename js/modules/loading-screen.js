@@ -1,80 +1,67 @@
 /**
  * Loading Screen Module
- * Displays animated loading screen with progress bar
+ * A short intro while the fonts load: the constellation mark draws itself,
+ * then the screen lifts away. It waits for real readiness (fonts) rather
+ * than a timer, is capped so it never holds the page long, and is skipped
+ * on repeat visits within the same browser session.
  */
+
+const MIN_INTRO_MS = 900;   // long enough for the mark to finish drawing
+const MAX_INTRO_MS = 1400;  // never hold the page longer than this
+const SEEN_KEY = 'intro-seen';
 
 class LoadingScreen {
   constructor() {
     this.loadingScreen = null;
-    this.progress = null;
     this.initialized = false;
   }
 
   /**
    * Initialize loading screen with callback when complete
-   * @param {Function} onComplete - Callback to run after loading completes
+   * @param {Function} onComplete - Callback to run after the intro has lifted
    */
   init(onComplete) {
     if (this.initialized) return;
+    this.initialized = true;
 
     this.loadingScreen = document.getElementById('loading-screen');
-    this.progress = document.querySelector('.loading-progress');
-
-    if (!this.loadingScreen || !this.progress) {
-      console.warn('LoadingScreen: Elements not found');
-      // If loading screen doesn't exist, just run callback immediately
+    if (!this.loadingScreen) {
+      document.documentElement.classList.add('intro-done');
+      document.body.classList.remove('loading');
       if (onComplete) onComplete();
       return;
     }
 
-    this.startLoadingAnimation(onComplete);
-    this.initialized = true;
+    let seen = false;
+    try { seen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) { /* storage unavailable */ }
+
+    const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+    const minDelay = new Promise(resolve => setTimeout(resolve, seen ? 0 : MIN_INTRO_MS));
+    const cap = new Promise(resolve => setTimeout(resolve, MAX_INTRO_MS));
+
+    Promise.race([Promise.all([fontsReady, minDelay]), cap]).then(() => {
+      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) { /* storage unavailable */ }
+      this.hide(onComplete, seen);
+    });
   }
 
   /**
-   * Animate loading progress bar
-   * @param {Function} onComplete - Callback after animation completes
+   * Lift the screen, release the page and hand over to the app
+   * @param {Function} onComplete - Callback after the screen is gone
+   * @param {boolean} instant - Skip the exit transition (repeat visit)
    */
-  startLoadingAnimation(onComplete) {
-    let loadProgress = 0;
-    const interval = setInterval(() => {
-      loadProgress += Math.random() * 30;
-      if (loadProgress >= 100) {
-        loadProgress = 100;
-        clearInterval(interval);
-        
-        // Update progress bar
-        this.progress.style.width = loadProgress + '%';
-        
-        // Fade out loading screen after a brief delay
-        setTimeout(() => {
-          this.loadingScreen.style.opacity = '0';
-          setTimeout(() => {
-            this.loadingScreen.style.display = 'none';
-            document.body.classList.remove('loading');
-            
-            // Start hero animation AFTER loading screen is done
-            this.startHeroAnimation();
-            
-            // Run main app initialization callback
-            if (onComplete) onComplete();
-          }, 500);
-        }, 300);
-      } else {
-        this.progress.style.width = loadProgress + '%';
-      }
-    }, 100);
-  }
+  hide(onComplete, instant) {
+    // the hero entrance (css/components/motion.css) plays as the screen lifts
+    document.documentElement.classList.add('intro-done');
 
-  /**
-   * Start hero title reveal animation
-   */
-  startHeroAnimation() {
-    const heroTitle = document.querySelector('.hero-title .gradient-text');
-    if (heroTitle) {
-      // Trigger the wipe reveal animation
-      heroTitle.classList.add('hero-reveal');
-    }
+    const finish = () => {
+      this.loadingScreen.style.display = 'none';
+      document.body.classList.remove('loading');
+      if (onComplete) onComplete();
+    };
+    if (instant) { finish(); return; }
+    this.loadingScreen.classList.add('is-leaving');
+    setTimeout(finish, 600);
   }
 }
 
