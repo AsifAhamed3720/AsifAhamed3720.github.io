@@ -97,8 +97,7 @@ class HelixProjects {
   /**
    * Document scroll position where card i (in the current filter) sits in
    * the reading position, or null when the helix isn't running. The inverse
-   * of _targetPos. Links to the projects section aim at card 0: at the
-   * section's top that card is still mid-flight, small and off to the side.
+   * of _targetPos; the progress dots scroll here.
    * @param {number} i - Index among the active cards
    */
   cardScrollY(i) {

@@ -22,6 +22,7 @@ import { prefersReducedMotion } from '../utils.js';
 const HERO_NAME = '.hero-title .gradient-text';
 const SPLIT_SELECTOR = '[data-split], ' + HERO_NAME;
 const BLOCK_SELECTOR = '.hero-subtitle, .hero-description, .hero-cta, .skill-category-large, ' +
+  '.fs-pitch, .fs-devices, .fs-how-head, .fs-step, .fs-stat, .fs-next, ' +
   '.contact-intro, .contact-form, .contact-divider, .contact-links';
 
 const SCRAMBLE_GLYPHS = '#%&*+=<>/_01';

@@ -6,17 +6,9 @@
  */
 
 import { prefersReducedMotion } from '../utils.js';
-import helixProjects from './helix-projects.js';
 
 const SCROLLED_AT = 100;  // px scrolled before the bar takes its solid background
 const READ_LINE = 0.35;   // a section is current once its top passes 35% down the viewport
-
-// Sections whose links should land somewhere other than their top: section
-// id -> document scroll position, or null to fall back to the section top.
-const LANDINGS = {
-  // the pinned helix: land on the first card, not mid-flight above it
-  projects: () => helixProjects.cardScrollY(0)
-};
 
 class Navigation {
   constructor() {
@@ -209,23 +201,19 @@ class Navigation {
   }
 
   /**
-   * Smooth scrolling for in-page links in the nav, mobile menu, hero and
-   * footer. scroll-padding-top in base.css keeps headings clear of the
-   * fixed bar; a section with its own landing spot (LANDINGS) goes there.
+   * Smooth scrolling for in-page links in the nav, mobile menu, hero,
+   * footer and flagship block. scroll-padding-top in base.css keeps
+   * headings clear of the fixed bar.
    */
   setupSmoothScroll() {
-    const selector = '.nav-link[href^="#"], .mobile-menu-link[href^="#"], .cta-primary[href^="#"], .cta-secondary[href^="#"], .scroll-cue[href^="#"], .footer-links a[href^="#"]';
+    const selector = '.nav-link[href^="#"], .mobile-menu-link[href^="#"], .cta-primary[href^="#"], .cta-secondary[href^="#"], .scroll-cue[href^="#"], .footer-links a[href^="#"], .flagship a[href^="#"]';
 
     document.querySelectorAll(selector).forEach(link => {
       link.addEventListener('click', (e) => {
         const target = document.querySelector(link.getAttribute('href'));
         if (!target) return;
         e.preventDefault();
-
-        const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
-        const landing = LANDINGS[target.id]?.();
-        if (landing != null) window.scrollTo({ top: landing, behavior });
-        else target.scrollIntoView({ behavior, block: 'start' });
+        target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
       });
     });
   }

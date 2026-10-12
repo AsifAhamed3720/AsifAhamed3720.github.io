@@ -4,6 +4,8 @@
  * one block (.filter-ind) slides under the active button.
  */
 
+import { placeSlider } from '../utils.js';
+
 const FADE_MS = 300; // matches the card fade before a filtered-out card leaves the flow
 
 class ProjectFilters {
@@ -79,18 +81,7 @@ class ProjectFilters {
    * @param {boolean} animate - Slide there, rather than jump
    */
   placeIndicator(btn, animate = true) {
-    const ind = this.indicator;
-    if (!ind || !btn) return;
-
-    if (!animate) ind.style.transition = 'none';
-    ind.style.width = btn.offsetWidth + 'px';
-    ind.style.height = btn.offsetHeight + 'px';
-    ind.style.transform = `translate(${btn.offsetLeft}px, ${btn.offsetTop}px)`;
-    ind.style.opacity = '1';
-    if (!animate) {
-      void ind.offsetWidth; // commit the jump before the transitions return
-      ind.style.transition = '';
-    }
+    placeSlider(this.indicator, btn, animate);
   }
 
   /**

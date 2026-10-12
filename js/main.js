@@ -17,6 +17,7 @@ import scrollToTop from './modules/scroll-to-top.js';
 import cursorGlow from './modules/cursor-glow.js';
 import pointerEffects from './modules/pointer-effects.js';
 import projectFilters from './modules/project-filters.js';
+import flagship from './modules/flagship.js';
 import waterRipple from './modules/water-ripple.js';
 import contactForm from './modules/contact-form.js';
 import starfield from './modules/starfield.js';
@@ -41,6 +42,7 @@ const MODULES = [
   { name: 'Cursor Glow', module: cursorGlow, flag: 'cursorGlow' },
   { name: 'Pointer Effects', module: pointerEffects, flag: 'pointerEffects' },
   { name: 'Project Filters', module: projectFilters },
+  { name: 'Flagship', module: flagship },
   { name: 'Helix Projects', module: helixProjects },
   { name: 'Mesh Viewer', module: meshViewer },     // loads on approach
   { name: 'Crawler Demo', module: crawlerDemo },   // loads on approach
@@ -105,6 +107,7 @@ export {
   cursorGlow,
   pointerEffects,
   projectFilters,
+  flagship,
   waterRipple,
   contactForm,
   starfield,

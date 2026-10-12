@@ -39,7 +39,12 @@ A modern, responsive portfolio website showcasing my projects and skills in AI, 
 - Reduced motion support for accessibility
 
 ### 🎯 **Projects Showcase**
-Four featured projects:
+**Flagship:** [Smart Student Blueprint](https://smart-student-blueprint.vercel.app/), a live education
+platform (courses, bKash payments, IELTS exams, grading), leads the projects section:
+a plain-language pitch beside the real screens, a learner / educator walkthrough
+(`js/modules/flagship.js`), the numbers, and the roadmap.
+
+Four more in the projects showcase:
 1. **From Normals to Mesh** - 3D reconstruction pipeline (Computer Vision)
 2. **Balance Buddy** - Android budgeting app (Mobile Development)
 3. **SEATRU Platform** - Crowdfunding web platform (Full-Stack)

@@ -1,0 +1,449 @@
+/* =========================
+   FLAGSHIP: SMART STUDENT BLUEPRINT
+   The centerpiece project, leading the projects section and presented as a
+   product: a pitch beside the real screens in device frames, a learner /
+   educator walkthrough, the numbers, and what comes next. Written for
+   readers who don't read code. The other projects follow under
+   "More projects".
+========================= */
+.flagship {
+  --bezel: #15161d;            /* device frames stay dark in both themes */
+  --bezel-edge: rgba(255, 255, 255, 0.08);
+  margin-bottom: 96px;
+}
+
+.fs-eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary-blue);
+}
+
+.fs-title {
+  margin: 0 0 14px;
+  font-size: clamp(1.9rem, 1.3rem + 1.9vw, 2.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+/* the heading for the rest of the work, above the filter bar */
+.projects-more {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 0 0 22px;
+  font-size: clamp(1.3rem, 1.05rem + 1vw, 1.7rem);
+}
+
+.projects-more::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-line), transparent);
+}
+
+/* ---- pitch + devices ---- */
+.fs-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.fs-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 18px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fs-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-blue);
+}
+
+/* a steady dot with a ring that pulses out of it (transform + opacity only) */
+.fs-live-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34c759;
+}
+
+.fs-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #34c759;
+  animation: fs-ping 2.4s var(--ease-out) infinite;
+}
+
+@keyframes fs-ping {
+  from { transform: scale(1); opacity: 0.6; }
+  to   { transform: scale(3.2); opacity: 0; }
+}
+
+/* the one-line promise under the name */
+.fs-lead {
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.25rem, 1.02rem + 0.9vw, 1.6rem);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.fs-summary {
+  max-width: 58ch;
+  margin: 0 0 14px;
+  font-size: 1.04rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.fs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+/* devices: a laptop with the phone leaning on its corner */
+.fs-devices {
+  position: relative;
+  margin: 0;
+  padding: 0 7% 9% 0;
+}
+
+.fs-laptop,
+.fs-phone {
+  margin: 0;
+}
+
+.fs-screen {
+  aspect-ratio: 16 / 10.4;
+  overflow: hidden;
+  background: #0b0d14;
+  border: 10px solid var(--bezel);
+  border-radius: 14px 14px 4px 4px;
+  box-shadow:
+    0 0 0 1px var(--bezel-edge),
+    0 34px 60px -32px rgba(0, 0, 0, 0.65);
+}
+
+/* the laptop's base, a little wider than the screen */
+.fs-laptop::after {
+  content: "";
+  display: block;
+  height: 12px;
+  margin: 0 -5%;
+  background: linear-gradient(to bottom, #2b2d38, #14151b);
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 18px 30px -18px rgba(0, 0, 0, 0.6);
+}
+
+.fs-phone {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 25%;
+  aspect-ratio: 780 / 1688;
+  overflow: hidden;
+  background: #0b0d14;
+  border: 6px solid var(--bezel);
+  border-radius: 24px;
+  box-shadow:
+    0 0 0 1px var(--bezel-edge),
+    -18px 26px 40px -18px rgba(0, 0, 0, 0.6);
+}
+
+.fs-shot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+  cursor: zoom-in;
+}
+
+/* stops short of the phone, which overlaps the bottom right corner */
+.fs-caption {
+  max-width: 68%;
+  margin: 18px 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* ---- how it works ---- */
+.fs-how {
+  margin-top: 88px;
+}
+
+.fs-how-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+}
+
+.fs-how-head h3 {
+  margin: 0;
+  font-size: clamp(1.3rem, 1.05rem + 1vw, 1.7rem);
+}
+
+/* segmented switch, same build as the project filter bar */
+.fs-tabs {
+  position: relative;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+
+.fs-tab-ind {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .5s var(--ease-out), width .5s var(--ease-out), opacity .3s ease;
+}
+
+.fs-tab {
+  position: relative;
+  z-index: 1;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  font: 500 0.9rem/1.2 var(--font-sans);
+  cursor: pointer;
+  transition: color 0.35s ease, background-color 0.3s ease;
+}
+
+.fs-tab:hover { color: var(--text-primary); background: var(--accent-soft); }
+
+.fs-tab[aria-selected="true"],
+.fs-tab[aria-selected="true"]:hover { color: var(--on-accent); background: transparent; }
+
+/* without the script the selected tab carries its own fill */
+.fs-tabs:not(.has-ind) .fs-tab[aria-selected="true"] {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+}
+
+/* steps: five in a row joined by a rule, a single column on smaller screens */
+.fs-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+  margin: 30px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* display: grid would otherwise beat the hidden attribute */
+.fs-steps[hidden] { display: none; }
+
+.fs-step {
+  position: relative;
+  padding-top: 22px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* the stretch of rule above each step lights up in the accent */
+.fs-step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 42px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
+}
+
+.fs-step-num {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--primary-blue);
+}
+
+.fs-step h4 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.fs-step p {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ---- in numbers ---- */
+.fs-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 72px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.fs-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 26px 22px 26px 0;
+}
+
+.fs-stat + .fs-stat {
+  padding-left: 22px;
+  border-left: 1px solid var(--border-color);
+}
+
+.fs-stat strong {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(2.2rem, 1.6rem + 2vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* by class: the odometer fills the number itself with spans */
+.fs-stat-label {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* ---- roadmap ---- */
+.fs-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 24px;
+  margin-top: 26px;
+}
+
+.fs-next-label {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fs-next ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fs-next li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.fs-next li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--primary-blue);
+  border-radius: 1px;
+}
+
+/* ---- smaller screens ---- */
+@media (max-width: 1100px) {
+  .fs-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    max-width: 720px;
+  }
+
+  /* each step becomes a row: number on the left, text on the right */
+  .fs-step {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    padding: 18px 0;
+  }
+
+  .fs-step-num { grid-row: span 2; margin: 2px 0 0; }
+  .fs-step h4 { grid-column: 2; }
+  .fs-step p { grid-column: 2; }
+}
+
+@media (max-width: 960px) {
+  .fs-intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 44px;
+  }
+
+  .fs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .fs-stat:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .fs-stat:nth-child(n + 3) { border-top: 1px solid var(--border-color); }
+}
+
+@media (max-width: 768px) {
+  .flagship { margin-bottom: 72px; }
+  .fs-how { margin-top: 64px; }
+  .fs-stats { margin-top: 56px; }
+}
+
+@media (max-width: 480px) {
+  .fs-actions .btn { flex: 1 1 auto; }
+  .fs-how-head { flex-direction: column; align-items: flex-start; }
+  .fs-step { grid-template-columns: 44px minmax(0, 1fr); }
+  .fs-stat { padding-right: 12px; }
+  .fs-stat + .fs-stat { padding-left: 14px; }
+  .fs-stat:nth-child(3) { padding-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fs-live-dot::after { animation: none; }
+}

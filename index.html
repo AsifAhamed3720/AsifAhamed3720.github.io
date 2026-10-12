@@ -321,6 +321,142 @@
       <span class="section-rule" aria-hidden="true"></span>
     </header>
 
+    <!-- Flagship: Smart Student Blueprint, introduced as a product rather than
+         a card. Written for readers who don't read code; the numbers roll like
+         the 95% figure, and the learner/educator switch is js/modules/flagship.js. -->
+    <div id="flagship" class="flagship" role="group" aria-labelledby="flagship-title">
+      <div class="fs-intro">
+        <div class="fs-pitch">
+          <p class="fs-eyebrow">Flagship project</p>
+          <h3 id="flagship-title" class="fs-title">Smart Student Blueprint</h3>
+          <p class="fs-status">
+            <span class="fs-live"><span class="fs-live-dot" aria-hidden="true"></span>Live in production</span>
+            <span>Built solo</span>
+            <span>Made for Bangladesh</span>
+          </p>
+          <p class="fs-lead">A complete online school, from the first lesson to the final grade.</p>
+          <p class="fs-summary">
+            Most course sites stop at the video. Smart Student Blueprint takes a learner the whole way:
+            finding a course, paying with the mobile wallet already on their phone, learning at their
+            own pace, then sitting a full-length IELTS test that looks and behaves like the real
+            computer-based exam, with their band score worked out the moment they submit.
+          </p>
+          <p class="fs-summary">
+            Teachers get everything needed to run it, from writing the exam to confirming payments and
+            watching revenue. I designed, built and run it myself, since May 2026.
+          </p>
+          <div class="fs-actions">
+            <a href="https://smart-student-blueprint.vercel.app/" class="btn btn-primary" target="_blank" rel="noopener">
+              <span>Visit the platform</span>
+              <svg class="arrow" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="8 7 17 7 17 16"></polyline>
+              </svg>
+            </a>
+            <a href="#fs-how" class="btn btn-ghost"><span>See how it works</span></a>
+          </div>
+        </div>
+
+        <div class="fs-devices">
+          <figure class="fs-laptop">
+            <div class="fs-screen">
+              <img class="fs-shot" src="images/SSBleft.jpg" alt="An IELTS Academic Reading paper on a laptop: the passage and its questions side by side, with a 1–40 question navigator" loading="lazy">
+            </div>
+          </figure>
+          <figure class="fs-phone">
+            <img class="fs-shot" src="images/SSBright.jpg" alt="The same IELTS paper on a phone, switching between the passage and the questions" loading="lazy">
+          </figure>
+          <p class="fs-caption">A real IELTS Reading paper, as a student sits it. Click or tap either screen to enlarge.</p>
+        </div>
+      </div>
+
+      <div class="fs-how" id="fs-how">
+        <div class="fs-how-head">
+          <h3>Two sides of one platform</h3>
+          <div class="fs-tabs" role="tablist" aria-label="Who it is for">
+            <span class="fs-tab-ind" aria-hidden="true"></span>
+            <button class="fs-tab" type="button" role="tab" id="fs-tab-learners" aria-controls="fs-learners" aria-selected="true">For learners</button>
+            <button class="fs-tab" type="button" role="tab" id="fs-tab-educators" aria-controls="fs-educators" aria-selected="false" tabindex="-1">For educators</button>
+          </div>
+        </div>
+
+        <ol class="fs-steps" id="fs-learners" role="tabpanel" aria-labelledby="fs-tab-learners">
+          <li class="fs-step">
+            <span class="fs-step-num">01</span>
+            <h4>Find a course</h4>
+            <p>Browse free and paid courses, and try the preview lessons before paying anything.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">02</span>
+            <h4>Pay the local way</h4>
+            <p>Pay with bKash, the mobile wallet students already use. The course opens as soon as the payment is confirmed.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">03</span>
+            <h4>Learn at their own pace</h4>
+            <p>Video, PDF and reading lessons, with progress that follows them from phone to laptop. Nothing is lost if access lapses.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">04</span>
+            <h4>Sit real-format exams</h4>
+            <p>Timed practice tests and full IELTS papers. Answers save as they go, so a dropped connection costs nothing.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">05</span>
+            <h4>See how they did</h4>
+            <p>Marks or an IELTS band, with a question-by-question review whenever the teacher allows it.</p>
+          </li>
+        </ol>
+
+        <ol class="fs-steps" id="fs-educators" role="tabpanel" aria-labelledby="fs-tab-educators" hidden>
+          <li class="fs-step">
+            <span class="fs-step-num">01</span>
+            <h4>Build courses</h4>
+            <p>Create and publish courses, put the lessons in order, choose free previews and set the price.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">02</span>
+            <h4>Write exams</h4>
+            <p>Five question styles and complete IELTS papers, checked by previewing exactly what students will see.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">03</span>
+            <h4>Confirm payments</h4>
+            <p>A review queue for bKash payments, with a clock on how long each student has been waiting.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">04</span>
+            <h4>Grade fairly</h4>
+            <p>Automatic marking, a queue for written answers, and a recorded reset when a student genuinely needs another try.</p>
+          </li>
+          <li class="fs-step">
+            <span class="fs-step-num">05</span>
+            <h4>Run the business</h4>
+            <p>Revenue, sales and renewals at a glance, plus announcements and a full record of who changed what.</p>
+          </li>
+        </ol>
+      </div>
+
+      <ul class="fs-stats" aria-label="In numbers">
+        <li class="fs-stat"><strong data-odometer>40</strong><span class="fs-stat-label">question IELTS papers, marked the moment a student submits</span></li>
+        <li class="fs-stat"><strong data-odometer>39</strong><span class="fs-stat-label">screens across the learner and educator sides</span></li>
+        <li class="fs-stat"><strong data-odometer>817</strong><span class="fs-stat-label">automated checks behind every release</span></li>
+        <li class="fs-stat"><strong data-odometer>1</strong><span class="fs-stat-label">person behind the product, design, build and launch</span></li>
+      </ul>
+
+      <div class="fs-next">
+        <span class="fs-next-label">Next on the roadmap</span>
+        <ul>
+          <li>Card payments through a licensed gateway</li>
+          <li>Live classes</li>
+          <li>Completion certificates</li>
+          <li>Leaderboards</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="projects-more">More projects</h3>
+
     <!-- Filter bar: a segmented control; the sliding block is positioned by project-filters.js -->
     <div class="filter-container" role="group" aria-label="Filter projects">
       <span class="filter-ind" aria-hidden="true"></span>

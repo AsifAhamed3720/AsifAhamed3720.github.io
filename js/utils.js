@@ -105,3 +105,24 @@ export function isMobile() {
 export function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
+
+/**
+ * Move a segmented control's sliding block onto one of its buttons. The
+ * block is positioned inside the control (position: relative), so the
+ * button's offsets are its coordinates.
+ * @param {HTMLElement} block - The absolutely positioned block
+ * @param {HTMLElement} target - The button to sit under
+ * @param {boolean} animate - Slide there, rather than jump
+ */
+export function placeSlider(block, target, animate = true) {
+  if (!block || !target) return;
+  if (!animate) block.style.transition = 'none';
+  block.style.width = target.offsetWidth + 'px';
+  block.style.height = target.offsetHeight + 'px';
+  block.style.transform = `translate(${target.offsetLeft}px, ${target.offsetTop}px)`;
+  block.style.opacity = '1';
+  if (!animate) {
+    void block.offsetWidth; // commit the jump before the transitions return
+    block.style.transition = '';
+  }
+}

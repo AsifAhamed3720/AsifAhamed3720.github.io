@@ -34,8 +34,9 @@ class Lightbox {
    * Set up all event listeners for lightbox functionality
    */
   setupEventListeners() {
-    // Add click listeners to ALL project images (regular AND FYP flower images)
-    document.querySelectorAll('.project-image, .fyp-flower-image').forEach(img => {
+    // Add click listeners to ALL project images (regular, FYP flower images,
+    // and the device screens in the flagship section)
+    document.querySelectorAll('.project-image, .fyp-flower-image, .fs-shot').forEach(img => {
       img.addEventListener('click', (e) => this.openLightbox(e, img));
     });
 
