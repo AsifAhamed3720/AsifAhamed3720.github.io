@@ -9,7 +9,7 @@ const CONFIG = {
 
   // Scroll rotation (Y axis — pans the field left/right as you scroll down)
   scrollRotSpeed : 0.00055,  // radians added per pixel of scroll
-  scrollEase     : 0.055,    // how smoothly rotation catches up to scroll
+  scrollEase     : 0.1,      // how smoothly rotation catches up to scroll (per 60 fps frame)
 
   // Slow automatic Y rotation so the field never looks static
   autoRotY       : 0.00014,
@@ -33,6 +33,17 @@ const CONFIG = {
 
   colorDark  : '167, 139, 250',
   colorLight : '124, 58, 237',
+
+  // Cost: the canvas covers the whole window behind every section. Each
+  // quality level is [resolution cap, minimum ms between frames, draw the
+  // connecting lines]; the field starts at the top level and steps down if
+  // the page keeps running slower than slowFrameMs per frame on this device.
+  quality    : [
+    [0.75, 32, false],   // ~30 fps, no web of lines
+    [1,    24, true],    // ~40 fps
+    [1.25, 13, true],    // ~75 fps, however fast the display refreshes
+  ],
+  slowFrameMs : 40,   // a smoothed gap between frames above this (< 25 fps) steps down
 
   // ── Helix column (projects section staircase anchor) ──
   // Driven by js/modules/helix-projects.js via helixMorphTarget/helixSpinPhase.
@@ -88,6 +99,10 @@ class Starfield {
     this._lineBuckets     = [];  // reused per-frame segment buffers (batched lines)
     this._pt              = { x: 0, y: 0, f: 0 };  // scratch for _railPoint
 
+    this.lastFrame = 0;          // timestamp of the last drawn frame
+    this.level = CONFIG.quality.length - 1;  // current quality level (see CONFIG)
+    this.cost = 0;               // smoothed ms between drawn frames
+    this.overBudget = 0;         // consecutive frames with this.cost > slowFrameMs
     this.rafId = null;
     this.initialized = false;
   }
@@ -124,9 +139,10 @@ class Starfield {
   }
 
   _resize() {
-    // Cap DPR at 2 — beyond that the extra fill cost isn't worth it for a
-    // subtle background field, and it protects 3× displays on weak GPUs.
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Cap the resolution: fill cost grows with every pixel of a canvas that
+    // covers the whole window, and a soft background field gains nothing
+    // visible from 1.5× or 2× rendering.
+    const dpr = Math.min(window.devicePixelRatio || 1, CONFIG.quality[this.level][0]);
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.canvas.width  = w * dpr;
@@ -238,23 +254,56 @@ class Starfield {
 
   // ── Main loop ─────────────────────────────────────────────────────────────
 
-  _loop() {
+  _loop(now = performance.now()) {
+    this.rafId = requestAnimationFrame(t => this._loop(t));
+
     // Don't burn CPU/GPU animating a field nobody can see (background tab).
-    if (!document.hidden) {
-      this._update();
-      this._draw();
-    }
-    this.rafId = requestAnimationFrame(() => this._loop());
+    if (document.hidden) { this.lastFrame = 0; return; }
+
+    // A soft background doesn't need every refresh of a 120–360 Hz screen:
+    // draw at the quality level's rate, and advance by elapsed time (dt,
+    // counted in 60 fps frames) so the motion runs at the same speed on any
+    // display and at any level.
+    if (this.lastFrame && now - this.lastFrame < CONFIG.quality[this.level][1]) return;
+    const gap = this.lastFrame ? now - this.lastFrame : 0;
+    const dt = gap ? Math.min(gap / (1000 / 60), 4) : 1;
+    this.lastFrame = now;
+
+    this._update(dt);
+    this._draw();
+    if (gap) this._adapt(gap);
   }
 
-  _update() {
+  /**
+   * Step down a quality level when the page keeps falling below ~25 fps on
+   * this device (a slow CPU, or a browser drawing without the GPU). Judged by
+   * the time between frames, since the canvas is rasterised after our draw
+   * calls return and their own duration hides most of the cost. Never steps
+   * back up, so it can't oscillate.
+   */
+  _adapt(gap) {
+    this.cost = this.cost ? this.cost * 0.9 + gap * 0.1 : gap;
+    this.overBudget = this.cost > CONFIG.slowFrameMs ? this.overBudget + 1 : 0;
+    if (this.overBudget < 45 || this.level === 0) return;
+    this.level -= 1;
+    this.overBudget = 0;
+    this.cost = 0;
+    this._resize();
+  }
+
+  /** Easing step for a rate tuned per 60 fps frame, applied over dt frames */
+  _ease(rate, dt) {
+    return 1 - Math.pow(1 - rate, dt);
+  }
+
+  _update(dt) {
     // ── Rotation angles ─────────────────────────────────────────────────────
 
     // Y: ease toward scroll-driven target
-    this.rotY += (this.targetRotY - this.rotY) * CONFIG.scrollEase;
+    this.rotY += (this.targetRotY - this.rotY) * this._ease(CONFIG.scrollEase, dt);
 
     // Auto-spin + cursor lean
-    this.autoY += CONFIG.autoRotY;
+    this.autoY += CONFIG.autoRotY * dt;
     const leanY = ((this.mouseX - this.W / 2) / (this.W / 2)) * CONFIG.cursorLeanY * 80;
     const leanX = ((this.mouseY - this.H / 2) / (this.H / 2)) * CONFIG.cursorLeanX * 60;
     const finalRotY = this.rotY + this.autoY + leanY;
@@ -266,18 +315,19 @@ class Starfield {
     const { focal } = CONFIG;
 
     // ── Helix column morph ───────────────────────────────────────────────────
-    this.helixMorph += (this.helixMorphTarget - this.helixMorph) * CONFIG.helix.morphEase;
+    this.helixMorph += (this.helixMorphTarget - this.helixMorph) * this._ease(CONFIG.helix.morphEase, dt);
     if (Math.abs(this.helixMorphTarget - this.helixMorph) < 0.001) {
       this.helixMorph = this.helixMorphTarget;
     }
-    this.idleSpin += 0.0012;
+    this.idleSpin += 0.0012 * dt;
     const spin = this.helixSpinPhase + this.idleSpin;
     // pulses climb steadily, and faster while the column is being turned
-    this.pulseClock += CONFIG.helix.pulseSpeed +
+    this.pulseClock += CONFIG.helix.pulseSpeed * dt +
       Math.abs(spin - this.spin) * CONFIG.helix.pulseScrollBoost;
     this.spin = spin;
     const morph = this.helixMorph;
     const smooth = t => t * t * (3 - 2 * t);
+    const damp = Math.pow(0.85, dt);   // repel springback per frame
 
     // ── Project every star into screen space ─────────────────────────────────
     this.stars.forEach(s => {
@@ -344,21 +394,21 @@ class Starfield {
       s.sy = y3 * sc + this.H / 2 + s.vy;
 
       // Twinkle
-      s.twinkle += s.twinkleSpeed;
+      s.twinkle += s.twinkleSpeed * dt;
 
       // ── Cursor repel (2D screen-space) ───────────────────────────────────
       const dx   = s.sx - this.mouseX;
       const dy   = s.sy - this.mouseY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < CONFIG.repelDist && dist > 0) {
-        const f = (1 - dist / CONFIG.repelDist) * CONFIG.repelForce;
+        const f = (1 - dist / CONFIG.repelDist) * CONFIG.repelForce * dt;
         s.vx += (dx / dist) * f;
         s.vy += (dy / dist) * f;
       }
 
       // Spring back & dampen
-      s.vx *= 0.85;
-      s.vy *= 0.85;
+      s.vx *= damp;
+      s.vy *= damp;
     });
   }
 
@@ -374,9 +424,6 @@ class Starfield {
       s.sx > -80 && s.sx < W + 80 &&
       s.sy > -80 && s.sy < H + 80
     );
-
-    // Sort far → near so closer stars paint over farther ones
-    visible.sort((a, b) => a.sc - b.sc);
 
     // ── Map perspective scale to normalised 0-1 depth value ─────────────────
     //    sc ranges roughly from (focal/(focal+spread)) to (focal/(focal-spread))
@@ -395,10 +442,10 @@ class Starfield {
     if (helixOn) this._drawHelix('back', pal);
 
     // ── Connection lines (batched) ────────────────────────────────────────────
-    //   Thousands of faint links used to be a separate stroke() per line —
-    //   the single biggest cost in the whole app. Instead we quantise each
-    //   line's alpha into a few buckets and stroke every line in a bucket as
-    //   one path, turning ~10k stroke calls into ~6. Visually identical.
+    //   Each line's alpha is quantised into a few buckets and every line in a
+    //   bucket is stroked as one path (~6 strokes instead of thousands).
+    //   Neighbours come from a coarse grid of line-length cells, so each star
+    //   is only tested against the stars around it rather than all of them.
     const LB = CONFIG.lineBuckets;
     const maxLA = CONFIG.maxLineAlpha;
     if (this._lineBuckets.length !== LB) {
@@ -408,26 +455,48 @@ class Starfield {
     for (let b = 0; b < LB; b++) buckets[b].length = 0;
 
     const lineDistSq = CONFIG.lineDistSq;
+    const CELL = Math.sqrt(lineDistSq);
+    const cols = Math.ceil((W + 160) / CELL) + 2;   // +1 cell of margin each side
+    const grid = new Map();
     for (let i = 0; i < visible.length; i++) {
+      const s = visible[i];
+      s.vi = i;
+      s.depth = norm(s);
+      s.cx = Math.floor((s.sx + 80) / CELL) + 1;
+      s.cy = Math.floor((s.sy + 80) / CELL) + 1;
+      const key = s.cy * cols + s.cx;
+      const cell = grid.get(key);
+      if (cell) cell.push(s); else grid.set(key, [s]);
+    }
+
+    // the lowest quality level skips the web entirely
+    const drawLines = CONFIG.quality[this.level][2];
+    for (let i = 0; drawLines && i < visible.length; i++) {
       const a = visible[i];
-      const ax = a.sx, ay = a.sy, na = norm(a), am = a.lineMul;
-      for (let j = i + 1; j < visible.length; j++) {
-        const b = visible[j];
-        const dx = ax - b.sx;
-        const dy = ay - b.sy;
-        const d2 = dx * dx + dy * dy;
-        if (d2 > lineDistSq) continue;
+      const ax = a.sx, ay = a.sy, na = a.depth, am = a.lineMul;
+      for (let gy = a.cy - 1; gy <= a.cy + 1; gy++) {
+        for (let gx = a.cx - 1; gx <= a.cx + 1; gx++) {
+          const cell = grid.get(gy * cols + gx);
+          if (!cell) continue;
+          for (let k = 0; k < cell.length; k++) {
+            const b = cell[k];
+            if (b.vi <= i) continue;               // each pair once
+            const dx = ax - b.sx;
+            const dy = ay - b.sy;
+            const d2 = dx * dx + dy * dy;
+            if (d2 > lineDistSq) continue;
 
-        const d = Math.sqrt(d2);
-        const depthFac = (na + norm(b)) * 0.5;
-        const lineAlpha = (1 - d / 160) * depthFac * 0.34 *
-                          (am < b.lineMul ? am : b.lineMul);
-        if (lineAlpha <= 0.01) continue;
+            const d = Math.sqrt(d2);
+            const depthFac = (na + b.depth) * 0.5;
+            const lineAlpha = (1 - d / 160) * depthFac * 0.34 *
+                              (am < b.lineMul ? am : b.lineMul);
+            if (lineAlpha <= 0.01) continue;
 
-        let bi = (lineAlpha / maxLA * LB) | 0;
-        if (bi >= LB) bi = LB - 1;
-        const seg = buckets[bi];
-        seg.push(ax, ay, b.sx, b.sy);
+            let bi = (lineAlpha / maxLA * LB) | 0;
+            if (bi >= LB) bi = LB - 1;
+            buckets[bi].push(ax, ay, b.sx, b.sy);
+          }
+        }
       }
     }
 
@@ -444,16 +513,35 @@ class Starfield {
       ctx.stroke();
     }
 
-    // ── Stars ────────────────────────────────────────────────────────────────
-    visible.forEach(s => {
-      const t = norm(s);
+    // ── Stars (batched) ──────────────────────────────────────────────────────
+    //   Dots, column halos and white highlights are grouped by colour and a
+    //   quantised alpha and filled as one path per group: a few dozen fill
+    //   calls a frame instead of one or more per star. Only the handful of
+    //   stars near the cursor get their own gradient glow.
+    const LEVELS = 32;
+    const halos = new Map();
+    const dots = new Map();
+    const highlights = new Map();
+    const add = (groups, col, alpha, x, y, r) => {
+      const lvl = Math.round(Math.min(alpha, 1) * LEVELS);
+      if (lvl <= 0) return;
+      const key = col + '|' + lvl;
+      let path = groups.get(key);
+      if (!path) { path = new Path2D(); groups.set(key, path); }
+      path.moveTo(x + r, y);
+      path.arc(x, y, r, 0, Math.PI * 2);
+    };
+
+    for (let i = 0; i < visible.length; i++) {
+      const s = visible[i];
+      const t = s.depth;
       const col = starColor(s);
 
       // Twinkle modulates alpha slightly
       const twinkMod = 0.85 + 0.15 * Math.sin(s.twinkle);
 
       const alpha  = (CONFIG.minAlpha + t * (CONFIG.maxAlpha - CONFIG.minAlpha)) * twinkMod * s.alphaMul;
-      if (alpha <= 0.01) return;
+      if (alpha <= 0.01) continue;
       const radius = (CONFIG.minSize + t * (CONFIG.maxSize - CONFIG.minSize)) * s.sizeMul;
 
       // Cursor proximity glow
@@ -478,26 +566,21 @@ class Starfield {
 
       // Soft halo on the column structure stars so the helix glows
       if ((s.role === 'strand' || s.role === 'core') && s.e > 0.2) {
-        ctx.beginPath();
-        ctx.arc(s.sx, s.sy, finalRadius * 3, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${col}, ${finalAlpha * 0.10 * s.e})`;
-        ctx.fill();
+        add(halos, col, finalAlpha * 0.10 * s.e, s.sx, s.sy, finalRadius * 3);
       }
 
-      // Core dot — near stars get a tiny inner highlight
-      ctx.beginPath();
-      ctx.arc(s.sx, s.sy, finalRadius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${col}, ${finalAlpha})`;
-      ctx.fill();
+      // Core dot — near stars get a tiny white specular centre
+      add(dots, col, finalAlpha, s.sx, s.sy, finalRadius);
+      if (t > 0.7) add(highlights, '255, 255, 255', (t - 0.7) * 0.9, s.sx, s.sy, finalRadius * 0.35);
+    }
 
-      if (t > 0.7) {
-        // Bright near-stars: white specular centre
-        ctx.beginPath();
-        ctx.arc(s.sx, s.sy, finalRadius * 0.35, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${(t - 0.7) * 0.9})`;
-        ctx.fill();
-      }
-    });
+    for (const groups of [halos, dots, highlights]) {
+      groups.forEach((path, key) => {
+        const bar = key.lastIndexOf('|');
+        ctx.fillStyle = `rgba(${key.slice(0, bar)}, ${(Number(key.slice(bar + 1)) / LEVELS).toFixed(3)})`;
+        ctx.fill(path);
+      });
+    }
 
     // ── Helix column, front half: near rails and the climbing pulses ────────
     if (helixOn) this._drawHelix('front', pal);

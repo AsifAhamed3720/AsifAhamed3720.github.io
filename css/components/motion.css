@@ -83,6 +83,12 @@
   transform: translateY(115%) rotate(4deg);
 }
 
+/* the sheen repaints the name every frame; pause it while the hero is
+   scrolled away (scroll-animations.js drops .is-in then) */
+.hero-title .gradient-text:not(.is-in) .wi {
+  animation-play-state: paused;
+}
+
 .motion-ready .hero-content > :not(.hero-title) {
   transition:
     opacity .9s var(--ease-out) var(--hd, 0s),

@@ -23,6 +23,7 @@
   --bg-gradient-start: #111;
   --bg-gradient-end: #0a0a0a;
   --bg-card: rgba(20, 20, 20, 0.65);
+  --bg-card-solid: rgba(18, 18, 20, 0.92);  /* for moving cards, which skip the blur */
   --text-primary: #e6e6e6;
   --text-strong: #ffffff;   /* emphasis a step beyond text-primary */
   --text-secondary: #cccccc;
@@ -67,6 +68,7 @@
   --bg-gradient-start: #ffffff;
   --bg-gradient-end: #f0f0f0;
   --bg-card: rgba(255, 255, 255, 0.8);
+  --bg-card-solid: rgba(255, 255, 255, 0.95);
   --text-primary: #1a1a1a;
   --text-strong: #000000;
   --text-secondary: #4a4a4a;
